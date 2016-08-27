@@ -23,10 +23,11 @@
 		-webkit-filter: drop-shadow(0px 0px 15px white);
 	}
 	hr {
-		border-color: #A6E22E;
+		border-color: white;
     	border-style: solid;
     	border-width: 2px;
-    	/*box-shadow: 0px 0px 5px 0px #A6E22E;*/
+    	width: 462px;
+    	box-shadow: 0px 0px 25px 0px white;
 	}
 	</style>
 </head>
@@ -35,14 +36,15 @@
 	<br><br><br><!-- <br><br> -->
 	<BR><BR>
 	<img id="cN" src="cN.png">
-	<BR><BR>
-	<hr>
+	<BR><BR><br>
+	<!-- <hr> -->
 	<div id="main">
 		BENDOR
 	</div>	
+	<br><br><br>
 	<hr>
 	<br><br>	
-	<img id="smiley" src="awesomeSmiley.png">
+	<!-- <img id="smiley" src="awesomeSmiley.png"> -->
 	</center>
 </body>
 </html>
