@@ -45,10 +45,10 @@
 
 
 logo.onclick = function() {
-	if(logo.src.endsWith("cn.png")) {
+	if(logo.src.endsWith("cN.png")) {
 		logo.src = "awesomeSmiley.png";
 	} else {
-		logo.src = "cn.png";
+		logo.src = "cN.png";
 	}
 }
 
