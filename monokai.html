@@ -1,0 +1,48 @@
+<html>
+<head>
+	<title>Monokai Theme Index</title>
+	<style type="text/css">
+		body {
+			background-color: #272822;
+			color: white;
+			font-family: Georgia;
+		}
+		#main {
+			position: relative;
+			left:50px;
+			/*top:50px;*/
+		}
+		.monokai_block {
+			width: 100px;
+			height: 200px;
+			text-align: center;
+			font-weight: bold;
+		}
+
+	</style>
+</head>
+<body>
+<br>#272822
+<br><br>
+<div id="main">
+	<table>
+		<tr>
+        	<!-- <td class="monokai_block">#272822</td> --> <!-- The background color-->
+        	<td class="monokai_block">#F92672</td>
+        	<td class="monokai_block">#66D9EF</td>
+        	<td class="monokai_block">#A6E22E</td>
+        	<td class="monokai_block">#FD971F</td>
+        	<td class="monokai_block">#AE81ff</td>
+        	<td class="monokai_block">#E6DB67</td>
+		</tr>
+	</table>
+</div>
+</body>
+</html>
+<script type="text/javascript">
+var blocks = document.getElementsByClassName('monokai_block');
+for (var i = blocks.length - 1; i >= 0; i--) {
+	var aBlock = blocks[i];
+	aBlock.style.backgroundColor = aBlock.innerText;
+};
+</script>
