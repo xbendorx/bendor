@@ -117,7 +117,7 @@
         var request = gapi.client.calendar.events.list({
           'calendarId': 'primary',
           'orderBy': 'updated',
-          'singleEvents': true,
+          // 'singleEvents': true,
           'showDeleted': false,
           'updatedMin': inDate.value
         });
