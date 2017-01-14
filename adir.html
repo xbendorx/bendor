@@ -42,7 +42,7 @@
         <br>Hey Adir :-)
         <br>Here's a list of the events you created since <input id="inDate" type="text" value="2017-01-04T00:00:00.000Z" disabled></input>
         <br>Click anywhere within a row to delete it.
-        <br>When you are done, click this button to show an easy-to-copy list of id's to send to Omri: <button onclick="doneClicked();">done</button>
+        <br>When you are done, click this button to DELETE THE EVENTS: <button onclick="doneClicked();">done</button>
       
       <br><BR>
       <table id="out_table">
@@ -56,7 +56,7 @@
       // Your Client ID can be retrieved from your project in the Google
       // Developer Console, https://console.developers.google.com
       var CLIENT_ID = '558138444243-eotokudvj1tksiasbsrh39hhqhdun17q.apps.googleusercontent.com';
-      var SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"];
+      var SCOPES = ["https://www.googleapis.com/auth/calendar"];
 
       /**
        * Check if current user has authorized this application.
@@ -117,6 +117,7 @@
         var request = gapi.client.calendar.events.list({
           'calendarId': 'primary',
           'orderBy': 'updated',
+          'singleEvents': true,
           'showDeleted': false,
           'updatedMin': inDate.value
         });
@@ -163,6 +164,7 @@
       function doneClicked() {
         var allIdTds = document.getElementsByClassName('eventId');
         var res = [];
+        
         for (var i = 0; i < allIdTds.length; i++) {
           var td = allIdTds[i];
           if(td.parentNode.hidden == true) {
@@ -170,7 +172,28 @@
           }
           res.push(td.innerText);
         };
-        main.appendChild(document.createTextNode(res));
+        
+        deleteAll(res);
+
+      }
+
+      function deleteAll(idsArr) {
+        debugger;
+        idsArr.forEach(function(id) {
+          
+        var request = gapi.client.calendar.events.delete({
+          'calendarId': 'primary',
+          'eventId'   : id
+        });
+
+        request.execute(function(resp) {
+          console.log(resp);
+        });
+
+
+
+
+        });
       }
 
     </script>
