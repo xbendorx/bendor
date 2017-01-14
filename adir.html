@@ -40,13 +40,13 @@
 
     <div id="main">
         <br>Hey Adir :-)
-        <br>Here's a list of all your events since <input id="inDate" type="text" value="2017-01-04T00:00:00.000Z" disabled></input>
+        <br>Here's a list of the events you created since <input id="inDate" type="text" value="2017-01-04T00:00:00.000Z" disabled></input>
         <br>Click anywhere within a row to delete it.
         <br>When you are done, click this button to show an easy-to-copy list of id's to send to Omri: <button onclick="doneClicked();">done</button>
       
       <br><BR>
       <table id="out_table">
-        <tr><th>Event ID<th>Event Creator<th>Event Organizer<th>Event Title</tr>
+        <tr><th>Event ID<th>Created<th>Event Creator<th>Event Organizer<th>Event Title</tr>
       </table>
     </div>
 
@@ -124,7 +124,7 @@
         request.execute(function(resp) {
           var events = resp.items;
           events.forEach(function(ev) {        
-            appendToTable(ev.id, getSafeDisplayName(ev.creator), getSafeDisplayName(ev.organzier), ev.summary);
+            appendToTable(ev.id, ev.updated, getSafeDisplayName(ev.creator), getSafeDisplayName(ev.organzier), ev.summary);
           });
         });
       }
