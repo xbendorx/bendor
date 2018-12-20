@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Adir Countdow</title>
+	<style type="text/css">
+		#output {		
+	    	background-color: #00000061;
+	    	font-size: 90px;
+	    	color: white;
+	    	position: absolute;
+	    	left: 12%;
+	    	top: 25%;
+	    	box-shadow: 0px 0px 90px -10px #ff00b1;
+		}
+	</style>
+</head>
+<body>
+<div id="output">ADIR COUNTDOWN</div>
+</body>
+</html>
+<script type="text/javascript">
+	
+	var target = new Date(1546988400000);
+	setInterval(function() {
+		var now = new Date();
+		var output = (target.getTime() - now.getTime());
+		output = Math.round(output / 1000);
+		document.getElementById("output").innerText = output;		
+	},1000);
+
+</script>
