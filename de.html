@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Memorization</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <style type="text/css">
+        body {
+            font-family: monospace;
+        }
+        hr {
+            color: black;
+            border-style: solid;
+            border-width: 5px;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+        h1 {
+            font-size: 72px;
+            color: #9DC3F7;
+        }
+        input {
+            font-family: monospace;
+            font-size: 72px;
+            width:300px;
+            text-align: center;
+            color:#7CF3BC;
+        }
+        #main {
+            position: absolute;
+            left: 30px;
+            top: 30px;
+            width: 500px;
+            box-shadow: 10px 10px 34px -10px black;
+        }
+        button {
+            font-family: monospace;
+            font-size: 30px;
+        }
+        #mistakes {
+            position: absolute;
+            left: 600px;
+            top:30px;
+            width:100px;
+            box-shadow: 10px 10px 34px -10px black;
+        }
+    </style>
+</head>
+<body>
+    <div id="main">
+        <br><br><br>
+        <center>
+        <hr>
+        <h1 id="question">HELLO</h1>
+        <hr>
+        <br>
+        <input id ="answer" type="text" onkeyup="handleKey(event);">
+        <br><br>
+        <hr>
+        <br>
+        <button id="next" onclick="doNext();">NEXT</button>
+        <h2 id="validation"></h2>
+        </center>
+        <br><br><br>
+    </div>
+    <p id="mistakes">
+        
+    </p>
+</body>
+</html>
+<!-- ============================================================================================================ -->
+<script type="text/javascript">
+
+///////////// MAIN
+
+var content         = loadContent();
+var currentQuestion = null;
+var currentAnswer   = null;
+
+var answers_total = content.length;
+var answers_count = -1;
+var answers_right = 0;
+var answers_wrong = 0;
+
+// loadQuestion();
+
+///////////// DECL 
+
+function loadContent() {
+    var cntnt = {
+      "questions": [
+            {"q":"achten", "a":["auf"]},
+            {"q":"anfangen", "a":["mit"]},
+            {"q":"antworten", "a":["auf"]},
+            {"q":"sich ärgern", "a":["über","ueber"]},
+            {"q":"aufpassen", "a":["auf"]},
+            {"q":"sich aufregen", "a":["über","ueber"]},
+            {"q":"sich bedanken", "a":["bei","für","fuer"]},
+            {"q":"beginnen", "a":["mit"]},
+            {"q":"sich beschweren", "a":["bei","über","ueber"]},
+            {"q":"sich bewerben", "a":["bei"]},
+            {"q":"bitten", "a":["um"]},
+            {"q":"danken", "a":["für","fuer"]},
+            {"q":"denken", "a":["an"]},
+            {"q":"diskutieren", "a":["über","ueber","mit"]},
+            {"q":"einladen", "a":["zu"]},
+            {"q":"sich engagieren", "a":["für","fuer"]},
+            {"q":"sich entschuldigen", "a":["für","fuer","bei"]},
+            {"q":"sich erinnern", "a":["an"]},
+            {"q":"fragen", "a":["nach"]},
+            {"q":"sich freuen", "a":["auf","über","ueber"]},
+            {"q":"gehören", "a":["zu"]},
+            {"q":"sich gewöhnen", "a":["an"]},
+            {"q":"glauben", "a":["an"]},
+            {"q":"gratulieren", "a":["zu"]},
+            {"q":"hoffen", "a":["auf"]},
+            {"q":"sich informieren", "a":["über","ueber","bei"]},
+            {"q":"sich interessieren", "a":["für","fuer"]},
+            {"q":"sich kümmern", "a":["um"]},
+            {"q":"lachen", "a":["über","ueber"]},
+            {"q":"nachdenken", "a":["über","ueber"]},
+            {"q":"passen", "a":["zu"]},
+            {"q":"reagieren", "a":["auf"]},
+            {"q":"schicken", "a":["an"]},
+            {"q":"sprechen", "a":["mit","von","über","ueber"]},
+            {"q":"teilnehmen", "a":["an"]},
+            {"q":"telefonieren", "a":["mit"]},
+            {"q":"sich treffen", "a":["mit"]},
+            {"q":"träuemen", "a":["von"]},
+            {"q":"sich unterhalten", "a":["mit","über","ueber"]},
+            {"q":"sich verlassen", "a":["auf"]},
+            {"q":"verzichten", "a":["auf"]},
+            {"q":"sich vorbereiten", "a":["auf"]},
+            {"q":"warten", "a":["auf"]},
+            {"q":"sich wundern", "a":["über","ueber"]},
+            {"q":"zweifeln", "a":["an"]}
+      ]
+    }
+
+    // content = $.getJSON('content.json?callback=?');
+
+    return shuffleArr(cntnt.questions);
+}
+
+function loadQuestion() {        
+    if(currentQuestion != null && answers_count % answers_total == 0) {
+        alert("All done!");
+    }
+    var questionToHandle = content[answers_count % answers_total];
+    currentQuestion = questionToHandle.q;
+    currentAnswer   = questionToHandle.a;
+
+    question.innerText = currentQuestion;
+    answer.value = "";
+    answer.focus();
+}
+    
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
+function handleKey(event) {
+    if (event.keyCode === 13) {
+        event.preventDefault();
+        next.click();
+    }
+}
+
+function validateAnswer() {
+    if(currentAnswer.indexOf(answer.value.trim().toLowerCase()) > -1) {
+        validation.style.color = "#56DC7C";
+        ++answers_right;
+    } else {
+        validation.style.color = "#F48282";
+        ++answers_wrong;
+        mistakes.innerText+="\n"+currentQuestion
+    }
+}
+
+function doNext() {
+    if(currentQuestion != null) {
+        validateAnswer();
+    }
+    ++answers_count;
+    renderScore();
+    loadQuestion();
+}
+
+function renderScore() {
+    validation.innerText = "G:B:T\n"+answers_right + ":" + answers_wrong +":"+ answers_count;
+}
+
+function shuffleArr(arr) {
+    var i, j,temp;
+    for (i = arr.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+    return arr;    
+};
+
+
+</script>
