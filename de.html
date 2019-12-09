@@ -42,7 +42,6 @@
             position: absolute;
             left: 600px;
             top:30px;
-            width:100px;
             box-shadow: 10px 10px 34px -10px black;
         }
     </style>
@@ -65,7 +64,8 @@
         <br><br><br>
     </div>
     <p id="mistakes">
-        
+        Mistakes:<br>
+        =========<br>
     </p>
 </body>
 </html>
@@ -83,6 +83,7 @@ var answers_count = -1;
 var answers_right = 0;
 var answers_wrong = 0;
 
+mistakes.hidden = true;
 // loadQuestion();
 
 ///////////// DECL 
@@ -174,7 +175,8 @@ function validateAnswer() {
     } else {
         validation.style.color = "#F48282";
         ++answers_wrong;
-        mistakes.innerText+="\n"+currentQuestion
+        mistakes.hidden = false;
+        mistakes.innerText+="\n"+currentQuestion+" → "+currentAnswer.reduce((agg, v) => agg + ", "+v);
     }
 }
 
