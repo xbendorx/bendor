@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rhythm Trainer</title>
+    <style type="text/css">
+        body {
+            background-color: Black;    
+            color : White;
+        }   
+        img {
+            padding: 5px;
+        }
+        #header {
+            width: 850px;
+            height: 60px;
+            text-align: center;
+            font-size: 25px;
+        }
+        input {
+            width: 25px;
+            height:30px;
+            font-size:20px;
+        }
+        #goBtn {
+            width:  50px;
+            height: 50px;
+            font-size:20px;   
+        }
+    </style>
+</head>
+<body>
+    <br><br>
+    <div id="header">
+        Beat Count <input type="text" id="beatCount" value="4">
+        Row Count  <input type="text" id="rowCount"  value="3">
+        <button id="goBtn" accesskey="g" onclick="generateBeats();">&#8635;</button>
+    </div>
+    <div id="main"></div>
+</body>
+</html>
+<script type="text/javascript">
+    function generateBeats() {
+        document.getElementById('main').innerHTML = '';
+        var beatCount = document.getElementById('beatCount').value;
+        var rowCount  = document.getElementById('rowCount').value;
+        for(var i=1; i<(1 + rowCount*beatCount); ++i) {
+            var imgToAdd = document.createElement('img');
+            var randInt = Math.floor(1 + Math.random() * 9);
+            imgToAdd.src = "./note_0" + randInt + ".png";
+            main.appendChild(imgToAdd);
+            if (i%beatCount == 0) {
+                main.appendChild(document.createElement('br'));
+            }
+        }    
+    }
+    generateBeats();
+</script>
