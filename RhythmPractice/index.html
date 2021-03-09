@@ -46,7 +46,7 @@
         for(var i=1; i<(1 + rowCount*beatCount); ++i) {
             var imgToAdd = document.createElement('img');
             var randInt = Math.floor(1 + Math.random() * 9);
-            imgToAdd.src = "./note_0" + randInt + ".png";
+            imgToAdd.src = "./assets/note_0" + randInt + ".png";
             main.appendChild(imgToAdd);
             if (i%beatCount == 0) {
                 main.appendChild(document.createElement('br'));
