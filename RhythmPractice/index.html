@@ -33,20 +33,26 @@
     <div id="header">
         Beat Count: <input type="number" id="beatCount" value="4">
         Row Count:  <input type="number" id="rowCount"  value="3">
+        Syncopation? <input type="checkbox" id="sync">
         <button id="goBtn" accesskey="g" onclick="generateBeats();">&#8635;</button>
     </div>
     <div id="main"></div>
 </body>
 </html>
 <script type="text/javascript">
+    function getRand(fromIncl, toIncl) {
+        return Math.floor(fromIncl + Math.random() * (toIncl-1));
+    }
+
     function generateBeats() {
         document.getElementById('main').innerHTML = '';
         var beatCount = document.getElementById('beatCount').value;
         var rowCount  = document.getElementById('rowCount').value;
+        var withSync  = document.getElementById('sync').checked;
         for(var i=1; i<(1 + rowCount*beatCount); ++i) {
             var imgToAdd = document.createElement('img');
-            var randInt = Math.floor(1 + Math.random() * 9);
-            imgToAdd.src = "./note_0" + randInt + ".png";
+            var randInt = getRand(1, (withSync ? 17 : 10));
+            imgToAdd.src = "./assets/note_" + randInt.toString().padStart(2,"0") + ".png";
             main.appendChild(imgToAdd);
             if (i%beatCount == 0) {
                 main.appendChild(document.createElement('br'));
