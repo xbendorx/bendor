@@ -1,17 +1,18 @@
-<!DOCTYPE html>
 <html>
 <head>
     <title>Scale Generator</title>
     <style type="text/css">
+        body {
+            text-align: center;
+        }
         #Results {
             font-family: Consolas;
         }
-
     </style>
 </head>
 <body>
 <div id="ControlPanel">
-    <input type="checkbox" id="ControlPanel_Log"      checked>log</input><br>
+    <input type="checkbox" id="ControlPanel_Debug"      checked>debug</input><br>
     <input type="checkbox" id="ControlPanel_SemiSemi" checked>prevent subsequent semitones</input><br>
     <input type="radio" name="ControlPanel_Output" value="INTERVALS" checked>Intervals
     <input type="radio" name="ControlPanel_Output" value="NOTES"            >Notes<br>
@@ -36,8 +37,16 @@ function safeSumList(listToSum) {
     return listToSum.reduce((x,sum)=>sum+x);
 }
 
+function debug(msg) {
+    log(msg);
+}
+
+function print(msg) {
+    log(msg, true);
+}
+
 function log(msg, force = false) {
-    if(!force && !ControlPanel_Log.checked) {
+    if(!force && !ControlPanel_Debug.checked) {
         return;
     }
     Results.innerText = document.getElementById('Results').innerText + "\n" + msg;    
@@ -59,14 +68,14 @@ function intervalsToNotes(intrvlArr, startingNote) {
 
 function main() {    
     Results.innerText = "";
-    log("=== START ===");
+    debug("=== START ===");
 
     intervalArr = Array()
     lastInterval = 0
 
-    while(safeSumList(intervalArr) < 6) {
+    while(safeSumList(intervalArr) < 6) { // BUG: This can end up more than 6
         if(ControlPanel_SemiSemi.checked && lastInterval == 0.5) {
-            log("Last iunterval was 0.5 - not allowing twice")
+            debug("Last iunterval was 0.5 - not allowing twice")
             lastInterval = getRandomInt(2,3) * 0.5;
         } else {
             lastInterval = getRandomInt(1,3) * 0.5;
@@ -75,12 +84,12 @@ function main() {
     }
 
     switch($('input[name="ControlPanel_Output"]:checked').val()) {
-        case "INTERVALS": { log("["+intervalArr.toLocaleString().replaceAll(",",", ")+"]", true); break; }
-        case "NOTES": {     log("["+intervalsToNotes(intervalArr, "C").toLocaleString().replaceAll(",",", ")+"]"); break; }
-        default: { log("ERR:: Unknown output mode ["+ControlPanel_Output+"]"); }
+        case "INTERVALS": { print("["+intervalArr.toLocaleString().replaceAll(",",", ")+"]");                        break; }
+        case "NOTES": {     print("["+intervalsToNotes(intervalArr, "C").toLocaleString().replaceAll(",",", ")+"]"); break; }
+        default: { debug("ERR:: Unknown output mode ["+ControlPanel_Output+"]"); }
     }
     
-    log("=== FINISH ===");
+    debug("=== FINISH ===");
 }
 
 
