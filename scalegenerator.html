@@ -30,19 +30,8 @@
 
 // ##### DECL
 
-function safeSumList(listToSum) {
-    if(listToSum == undefined ||  listToSum == null || listToSum.length == 0) {
-        return 0;
-    }
-    return listToSum.reduce((x,sum)=>sum+x);
-}
-
-function debug(msg) {
-    log(msg);
-}
-
-function print(msg) {
-    log(msg, true);
+function clearOutput() {
+    Results.innerText = "";
 }
 
 function log(msg, force = false) {
@@ -52,6 +41,18 @@ function log(msg, force = false) {
     Results.innerText = document.getElementById('Results').innerText + "\n" + msg;
 }
 
+function debug(msg) {
+    log("DEBUG:: " + msg);
+}
+
+function print(msg) {
+    log(msg, true);
+}
+
+function arrToString(arr) {
+    return arr.toLocaleString().replaceAll(",",", ");
+}
+
 function getRandomInt(min, max) {
     max = max + 1; // more convenient to make both `min` and `max` inclusive
     min = Math.ceil(min);
@@ -59,21 +60,15 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }
 
-function intervalsToNotes(intrvlArr, startingNote) {
-    const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-    return NOTES;
+function safeSumList(listToSum) {
+    if(listToSum == undefined ||  listToSum == null || listToSum.length == 0) {
+        return 0;
+    }
+    return listToSum.reduce((x,sum)=>sum+x);
 }
 
 function getIntervalBySemitonalWidth(minSemitones, maxSemitones) {
     return getRandomInt(minSemitones, maxSemitones) * 0.5;
-}
-
-function clearOutput() {
-    Results.innerText = "";
-}
-
-function arrToString(arr) {
-    return arr.toLocaleString().replaceAll(",",", ");
 }
 
 function getIntervalArr(allowConsecutiveSemitones) {
@@ -85,6 +80,7 @@ function getIntervalArr(allowConsecutiveSemitones) {
         intervalSum = safeSumList(intervalArr);
         tonesMuchLeft = 6 - intervalSum;
         debug("Tones left ["+tonesMuchLeft+"]");
+        
         switch(tonesMuchLeft) {
             case 0  : {
                 debug("Octave complete");
@@ -115,6 +111,7 @@ function getIntervalArr(allowConsecutiveSemitones) {
                 break;
             }
         }
+
         if (shouldContinue) {
             debug("Adding ["+intervalToPush+"]");
             intervalArr.push(intervalToPush);
@@ -125,6 +122,10 @@ function getIntervalArr(allowConsecutiveSemitones) {
     return intervalArr;
 }
 
+function intervalsToNotes(intrvlArr, startingNote) {
+    const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+    return NOTES;
+}
 
 // ##### MAIN
 
