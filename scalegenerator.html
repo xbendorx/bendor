@@ -12,9 +12,9 @@
 </head>
 <body>
 <div id="ControlPanel">
-    <input type="checkbox" id="ControlPanel_Debug"           >Debug                     </input><br>
+    <input type="checkbox" id="ControlPanel_Debug"    checked>Debug                     </input><br>
     <input type="checkbox" id="ControlPanel_SemiSemi"        >Allow subsequent semitones</input><br>
-    <select id="ControlPanel_RootNote"> 
+    <select id="ControlPanel_RootNote">
         <option value="C" >C </option>
         <option value="C#">C#</option>
         <option value="D" >D </option>
@@ -54,7 +54,7 @@ function log(msg, force = false) {
 }
 
 function debug(msg) {
-    log("DEBUG:: " + msg);
+    log(msg == "" ? "" : "DEBUG:: " + msg);
 }
 
 function print(msg) {
@@ -92,7 +92,7 @@ function getIntervalArr(allowConsecutiveSemitones) {
         intervalSum = safeSumList(intervalArr);
         tonesMuchLeft = 6 - intervalSum;
         debug("Tones left ["+tonesMuchLeft+"]");
-        
+
         switch(tonesMuchLeft) {
             case 0  : {
                 debug("Octave complete");
@@ -134,23 +134,28 @@ function getIntervalArr(allowConsecutiveSemitones) {
     return intervalArr;
 }
 
-function nameNotCorrectly(pallet, nextIdx, prevIdx) {
-    return pallet[nextIdx];
+function nameNotCorrectly(pallet, nextIdx, lastNote) {
+    nextNote = pallet[nextIdx];
+    if(/* ControlPanel_SemiSemi.checked || */ lastNote.charAt(0) != nextNote.charAt(0)) {
+        return nextNote;
+    }
+    debug("Avoiding bad note naming - lastNote ["+lastNote+"] would-be nextNote ["+nextNote+"]");
+    return pallet[nextIdx + 1].charAt(0) + "b";
 }
 
 function intervalsToNotes(intervalArr, startingNote) {
-    const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", /* looping */ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" ];    
+    const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", /* looping */ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", /* looping */, "C", "C#", "D" ];
     notePalletToUse = NOTES.slice(NOTES.indexOf(startingNote), NOTES.length);
     notesToReturn = [ notePalletToUse[0] ];
 
-    positionInPallet     = 0;
-    lastPositionInPallet = 0;
+    positionInPallet = 0;
+    lastNoteAdded = notePalletToUse[positionInPallet];
     intervalArr.forEach(interval => {
         steps = interval / 0.5;
         positionInPallet += steps;
-        noteToAdd = nameNotCorrectly(notePalletToUse, positionInPallet, lastPositionInPallet);
+        noteToAdd = nameNotCorrectly(notePalletToUse, positionInPallet, lastNoteAdded);
         notesToReturn.push(noteToAdd);
-        lastPositionInPallet = positionInPallet;
+        lastNoteAdded = noteToAdd;
     });
 
     if(!ControlPanel_Debug.checked) {
@@ -170,13 +175,19 @@ function main() {
     intervalArr = getIntervalArr(ControlPanel_SemiSemi.checked);
     print("Intervals [" + arrToString(intervalArr) + "]");
     debug("Sum       [" + safeSumList(intervalArr) + "]");
-    
+
+    debug("");
+    if(ControlPanel_SemiSemi.checked) {
+        print("Warning: note-naming when allowing consequitve semitones is tricky, so this might be off");
+    }
     notes = intervalsToNotes(intervalArr, ControlPanel_RootNote.value);
     print("Notes     [" + arrToString(notes)       + "]");
-    print("");
+
+    // debug("");
     // playNotes(notes);
 
     debug("=== FINISH ===");
+    print("");
 }
 
 
