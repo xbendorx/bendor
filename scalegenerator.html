@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scale Generator</title>
+    <style type="text/css">
+        #Results {
+            font-family: Consolas;
+        }
+
+    </style>
+</head>
+<body>
+<div id="ControlPanel">
+    <input type="checkbox" id="ControlPanel_Log"      checked>log</input><br>
+    <input type="checkbox" id="ControlPanel_SemiSemi" checked>prevent subsequent semitones</input><br>
+    <input type="radio" name="ControlPanel_Output" value="INTERVALS" checked>Intervals
+    <input type="radio" name="ControlPanel_Output" value="NOTES"            >Notes<br>
+    <button id="ControlPanel_Btn" onclick="main()">Generate Scale</button>
+</div>
+<hr>
+<div id="Results">
+    
+</div>
+
+</body>
+</html>
+<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
+<script type="text/javascript">
+
+// ##### DECL
+
+function safeSumList(listToSum) {
+    if(listToSum == undefined ||  listToSum == null || listToSum.length == 0) {
+        return 0;
+    }
+    return listToSum.reduce((x,sum)=>sum+x);
+}
+
+function log(msg, force = false) {
+    if(!force && !ControlPanel_Log.checked) {
+        return;
+    }
+    Results.innerText = document.getElementById('Results').innerText + "\n" + msg;    
+}
+
+function getRandomInt(min, max) {
+    max = max + 1; // more convenient to make both `min` and `max` inclusive
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min);
+}
+
+function intervalsToNotes(intrvlArr, startingNote) {
+    const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+    return NOTES;
+}
+
+// ##### MAIN
+
+function main() {    
+    Results.innerText = "";
+    log("=== START ===");
+
+    intervalArr = Array()
+    lastInterval = 0
+
+    while(safeSumList(intervalArr) < 6) {
+        if(ControlPanel_SemiSemi.checked && lastInterval == 0.5) {
+            log("Last iunterval was 0.5 - not allowing twice")
+            lastInterval = getRandomInt(2,3) * 0.5;
+        } else {
+            lastInterval = getRandomInt(1,3) * 0.5;
+        }
+        intervalArr.push(lastInterval);
+    }
+
+    switch($('input[name="ControlPanel_Output"]:checked').val()) {
+        case "INTERVALS": { log("["+intervalArr.toLocaleString().replaceAll(",",", ")+"]", true); break; }
+        case "NOTES": {     log("["+intervalsToNotes(intervalArr, "C").toLocaleString().replaceAll(",",", ")+"]"); break; }
+        default: { log("ERR:: Unknown output mode ["+ControlPanel_Output+"]"); }
+    }
+    
+    log("=== FINISH ===");
+}
+
+
+</script>
