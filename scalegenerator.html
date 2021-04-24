@@ -134,16 +134,27 @@ function getIntervalArr(allowConsecutiveSemitones) {
     return intervalArr;
 }
 
-function intervalsToNotes(intrvlArr, startingNote) {
+function intervalsToNotes(intervalArr, startingNote) {
     const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", /* looping */ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" ];    
     notePalletToUse = NOTES.slice(NOTES.indexOf(startingNote), NOTES.length);
-    return notePalletToUse;
+    notesToReturn = [ notePalletToUse[0] ];
+
+    positionInPallet = 0;
+    intervalArr.forEach(interval => {
+        steps = interval / 0.5;
+        positionInPallet += steps;
+        notesToReturn.push(notePalletToUse[positionInPallet]); // this includes bad note naming :-(
+    });
+
+    return notesToReturn;
 }
 
 // ##### MAIN
 
 function main() {
-    clearOutput();
+    if(ControlPanel_Debug.checked) {
+        clearOutput();
+    }
     debug("=== START ===");
 
     intervalArr = getIntervalArr(ControlPanel_SemiSemi.checked);
@@ -152,7 +163,7 @@ function main() {
     
     notes = intervalsToNotes(intervalArr, ControlPanel_RootNote.value);
     print("Notes     [" + arrToString(notes)       + "]");
-
+    print("");
     // playNotes(notes);
 
     debug("=== FINISH ===");
