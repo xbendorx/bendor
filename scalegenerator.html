@@ -134,8 +134,8 @@ function getIntervalArr(allowConsecutiveSemitones) {
     return intervalArr;
 }
 
-function nameNotCorrectly(lastNote, newNote) {
-    return newNote;
+function nameNotCorrectly(pallet, nextIdx, prevIdx) {
+    return pallet[nextIdx];
 }
 
 function intervalsToNotes(intervalArr, startingNote) {
@@ -143,14 +143,14 @@ function intervalsToNotes(intervalArr, startingNote) {
     notePalletToUse = NOTES.slice(NOTES.indexOf(startingNote), NOTES.length);
     notesToReturn = [ notePalletToUse[0] ];
 
-    positionInPallet = 0;
-    lastNoteAdded = "X";
+    positionInPallet     = 0;
+    lastPositionInPallet = 0;
     intervalArr.forEach(interval => {
         steps = interval / 0.5;
         positionInPallet += steps;
-        noteToAdd = notePalletToUse[positionInPallet];
-        notesToReturn.push(nameNotCorrectly(lastNoteAdded, noteToAdd));
-        lastNoteAdded = noteToAdd;
+        noteToAdd = nameNotCorrectly(notePalletToUse, positionInPallet, lastPositionInPallet);
+        notesToReturn.push(noteToAdd);
+        lastPositionInPallet = positionInPallet;
     });
 
     if(!ControlPanel_Debug.checked) {
