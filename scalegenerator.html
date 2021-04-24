@@ -12,7 +12,7 @@
 </head>
 <body>
 <div id="ControlPanel">
-    <input type="checkbox" id="ControlPanel_Debug"    checked>Debug                     </input><br>
+    <input type="checkbox" id="ControlPanel_Debug"           >Debug                     </input><br>
     <input type="checkbox" id="ControlPanel_SemiSemi"        >Allow subsequent semitones</input><br>
     <select id="ControlPanel_RootNote"> 
         <option value="C" >C </option>
@@ -146,6 +146,9 @@ function intervalsToNotes(intervalArr, startingNote) {
         notesToReturn.push(notePalletToUse[positionInPallet]); // this includes bad note naming :-(
     });
 
+    if(!ControlPanel_Debug.checked) {
+        notesToReturn.pop(); // drop the duplicate octave if not debugging
+    }
     return notesToReturn;
 }
 
