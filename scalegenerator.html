@@ -12,15 +12,15 @@
 </head>
 <body>
 <div id="ControlPanel">
-    <input type="checkbox" id="ControlPanel_Debug"      checked>debug</input><br>
-    <input type="checkbox" id="ControlPanel_SemiSemi" checked>prevent subsequent semitones</input><br>
-    <input type="radio" name="ControlPanel_Output" value="INTERVALS" checked>Intervals
-    <input type="radio" name="ControlPanel_Output" value="NOTES"            >Notes<br>
+    <input type="checkbox" id="ControlPanel_Debug"    checked>debug                     </input><br>
+    <input type="checkbox" id="ControlPanel_SemiSemi"        >allow subsequent semitones</input><br>
+<!--     <input type="radio" name="ControlPanel_Output" value="INTERVALS" checked>Intervals
+    <input type="radio" name="ControlPanel_Output" value="NOTES"            >Notes<br> -->
     <button id="ControlPanel_Btn" onclick="main()">Generate Scale</button>
 </div>
 <hr>
 <div id="Results">
-    
+
 </div>
 
 </body>
@@ -49,7 +49,7 @@ function log(msg, force = false) {
     if(!force && !ControlPanel_Debug.checked) {
         return;
     }
-    Results.innerText = document.getElementById('Results').innerText + "\n" + msg;    
+    Results.innerText = document.getElementById('Results').innerText + "\n" + msg;
 }
 
 function getRandomInt(min, max) {
@@ -64,31 +64,83 @@ function intervalsToNotes(intrvlArr, startingNote) {
     return NOTES;
 }
 
+function getIntervalBySemitonalWidth(minSemitones, maxSemitones) {
+    return getRandomInt(minSemitones, maxSemitones) * 0.5;
+}
+
+function clearOutput() {
+    Results.innerText = "";
+}
+
+function arrToString(arr) {
+    return arr.toLocaleString().replaceAll(",",", ");
+}
+
+function getIntervalArr(allowConsecutiveSemitones) {
+    intervalArr = Array();
+    lastInterval = 0;
+    shouldContinue = true;
+
+    while(shouldContinue) {
+        intervalSum = safeSumList(intervalArr);
+        tonesMuchLeft = 6 - intervalSum;
+        debug("Tones left ["+tonesMuchLeft+"]");
+        switch(tonesMuchLeft) {
+            case 0  : {
+                debug("Octave complete");
+                shouldContinue = false;
+                break;
+            }
+            case 0.5: {
+                debug("Only 0.5 semitones left - adding that");
+                intervalToPush = 0.5;
+                break;
+            }
+            case 1  : {
+                if(lastInterval == 0.5) {
+                    debug("Only 1 semitone left, and last one was a semitone");
+                    intervalToPush = !allowConsecutiveSemitones ? 1 : getIntervalBySemitonalWidth(1,2);
+                } else {
+                    intervalToPush = getIntervalBySemitonalWidth(1,2);
+                }
+                break;
+            }
+            default : {
+                if(lastInterval == 0.5 && !allowConsecutiveSemitones) {
+                    debug("Last interval was a semitone and no consequitves are allowed - enforcing");
+                    intervalToPush = getIntervalBySemitonalWidth(2,3);
+                } else {
+                    intervalToPush = getIntervalBySemitonalWidth(1,3);
+                }
+                break;
+            }
+        }
+        if (shouldContinue) {
+            debug("Adding ["+intervalToPush+"]");
+            intervalArr.push(intervalToPush);
+            lastInterval = intervalToPush;
+        }
+    }
+
+    return intervalArr;
+}
+
+
 // ##### MAIN
 
-function main() {    
-    Results.innerText = "";
+function main() {
+    clearOutput();
     debug("=== START ===");
 
-    intervalArr = Array()
-    lastInterval = 0
-
-    while(safeSumList(intervalArr) < 6) { // BUG: This can end up more than 6
-        if(ControlPanel_SemiSemi.checked && lastInterval == 0.5) {
-            debug("Last iunterval was 0.5 - not allowing twice")
-            lastInterval = getRandomInt(2,3) * 0.5;
-        } else {
-            lastInterval = getRandomInt(1,3) * 0.5;
-        }
-        intervalArr.push(lastInterval);
-    }
-
-    switch($('input[name="ControlPanel_Output"]:checked').val()) {
-        case "INTERVALS": { print("["+intervalArr.toLocaleString().replaceAll(",",", ")+"]");                        break; }
-        case "NOTES": {     print("["+intervalsToNotes(intervalArr, "C").toLocaleString().replaceAll(",",", ")+"]"); break; }
-        default: { debug("ERR:: Unknown output mode ["+ControlPanel_Output+"]"); }
-    }
+    intervalArr = getIntervalArr(ControlPanel_SemiSemi.checked);
+    print("Intervals [" + arrToString(intervalArr) + "]");
+    debug("Sum       [" + safeSumList(intervalArr) + "]");
     
+    notes = intervalsToNotes(intervalArr);
+    print("Notes     [" + arrToString(notes)       + "]");
+
+    // playNotes(notes);
+
     debug("=== FINISH ===");
 }
 
