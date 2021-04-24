@@ -134,16 +134,23 @@ function getIntervalArr(allowConsecutiveSemitones) {
     return intervalArr;
 }
 
+function nameNotCorrectly(lastNote, newNote) {
+    return newNote;
+}
+
 function intervalsToNotes(intervalArr, startingNote) {
     const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", /* looping */ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" ];    
     notePalletToUse = NOTES.slice(NOTES.indexOf(startingNote), NOTES.length);
     notesToReturn = [ notePalletToUse[0] ];
 
     positionInPallet = 0;
+    lastNoteAdded = "X";
     intervalArr.forEach(interval => {
         steps = interval / 0.5;
         positionInPallet += steps;
-        notesToReturn.push(notePalletToUse[positionInPallet]); // this includes bad note naming :-(
+        noteToAdd = notePalletToUse[positionInPallet];
+        notesToReturn.push(nameNotCorrectly(lastNoteAdded, noteToAdd));
+        lastNoteAdded = noteToAdd;
     });
 
     if(!ControlPanel_Debug.checked) {
