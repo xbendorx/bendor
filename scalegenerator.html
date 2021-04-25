@@ -176,33 +176,52 @@ function rotateArr(arr) {
     return toReturn;
 }
 
-function nameScale(rootNote, scaleIntervals) {
-    // const PENTATONIC_MAJOR_SCALE_INTERVALS = [1,1,1.5,1,1.5];
-    // const MINOR_SCALE_INTERVALS            = [1,0.5,1,1,0.5,1,1];
-    const MAJOR_SCALE_INTERVALS            = [1,1,0.5,1,1,1,0.5];
-    const PENTATONIC_MINOR_SCALE_INTERVALS = [1.5,1,1,1.5,1];
-    const HARMONIC_MINOR_SCALE_INTERVALS   = [1,0.5,1,1,1,1,0.5];
-    const MELODIC_MINOR_SCALE_INTERVALS    = [1,0.5,1,1,0.5,1.5,0.5];
-    const WHOLE_TONE_SCALE_INTERVALS       = [1,1,1,1,1,1];
-    const CHROMATIC_SCALE_INTERVALS        = [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5];
-    const DIMINISHED_ARPEGGIO_INTERVALS    = [1.5,1.5,1.5,1.5];
-    const ALTERED_SCALE_INTERVALS          = [0.5,1,0.5,1,1,1,1];
+function nameScale(rootNote, scaleIntervals) {    
+    const SCALES_BANK = {
+        // "Pentatonic Major" : [1,1,1.5,1,1.5],
+        // "Natural Minor"    : [1,0.5,1,1,0.5,1,1],
+        "Major"               : [1,1,0.5,1,1,1,0.5],
+        "Pentatonic"          : [1.5,1,1,1.5,1],
+        "Harmonic Minor"      : [1,0.5,1,1,1,1,0.5],
+        "Melodic Minor"       : [1,0.5,1,1,0.5,1.5,0.5],
+        "Whole Tone"          : [1,1,1,1,1,1],
+        "Chromatic"           : [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],
+        "Diminished Arpeggio" : [1.5,1.5,1.5,1.5],
+        "Altered"             : [0.5,1,0.5,1,1,1,1]
+    }
+
+    for(scaleName in SCALES_BANK) {
+        activeScale = SCALES_BANK[scaleName];
+        matchedInversion   = testScaleMatchWithInversions(scaleIntervals, activeScale);
+        if(matchedInversion > -1) {
+            return scaleName + " inversion " + matchedInversion + " in " + rootNote;
+        }
+    }
 
     return "Unknown scale";
+}
+
+function testScaleMatchWithInversions(scaleToTest, scaleToCompareTo) {
+    scaleRotated = scaleToCompareTo;
+    for (var i = 0; i < scaleToCompareTo.length; ++i) {
+        if(simpleArraysEqual(scaleToTest, scaleRotated)) {
+            return i;
+        }
+        scaleRotated = rotateArr(scaleRotated);
+    }
+    return -1;
 }
 
 // ##### MAIN
 
 function main() {
-    if(ControlPanel_Debug.checked) {
-        clearOutput();
-    }
+    clearOutput();
     debug("=== START ===");
 
     intervalArr = generateScaleIntervals(ControlPanel_SemiSemi.checked);
     print("Intervals [" + arrToString(intervalArr) + "]");
     debug("Sum       [" + safeSumList(intervalArr) + "]");
-
+    debug("Count     [" + intervalArr.length       + "]");
     debug("=============");
     if(ControlPanel_SemiSemi.checked) {
         print("Warning: note-naming when allowing consequitve semitones is tricky, so this might be off");
