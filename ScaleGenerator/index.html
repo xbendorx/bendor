@@ -375,7 +375,7 @@ function main() {
     debug("=== START ===");
     
     debug("=== Handling Intervals ===");
-    var intervalArr = ControlPanel_UserIntervals.value == "" ? generateScaleIntervals(ControlPanel_SemiSemi.checked) : ControlPanel_UserIntervals.value.split(",").map(v => parseFloat(v));
+    var intervalArr = ControlPanel_UserIntervals.value == "" ? generateScaleIntervals(ControlPanel_SemiSemi.checked) : ControlPanel_UserIntervals.value.split(",").map(v => parseFloat(v)).filter(v => !isNaN(v));
     intervalArr.forEach(interval => outputResult('interval', interval));
     outputResult(null);
     debug("Interval Sum   [" + safeSumList(intervalArr) + "]");
