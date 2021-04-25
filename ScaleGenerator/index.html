@@ -63,6 +63,9 @@
             font-family: consolas;
             margin-left: 5px;
         }
+        #ControlPanel_Generate {
+            width: 254px;
+        }
         .dropdown {
             font-size: 20px;
             margin: 5px;
@@ -131,8 +134,11 @@
             <td class="table_cell"><button class="button" id="ControlPanel_Generate" onclick="generate()">Generate Scale</button>
         </tr>
         <tr>
-            <td class="table_cell"><input class="textinput" type="text" id="ControlPanel_UserIntervals"> Manual Intervals? (CSV) </input>
-            <td class="table_cell right_aligned" ><button class="button" id="ControlPanel_Play" onclick="play()" disabled>Play</button>
+            <td class="table_cell">
+                <input class="textinput" type="text" id="ControlPanel_UserIntervals"> Manual Intervals? (CSV) </input>
+            <td class="table_cell right_aligned" >
+                <input type="range" id="ControlPanel_SpeedFactor" min=0 max=0.9 step=0.1 value=0.5>Speed</input>
+                <button class="button" id="ControlPanel_Play" onclick="play()" disabled>Play</button>
         </tr>
     </table>
 </div>
@@ -412,7 +418,7 @@ function play() {
     for(var i = 0; i< allNotes.length; ++i) {
         var note = allNotes[i];
         debug("Playing ["+note+"]");
-        synth.triggerAttackRelease(note, "8n", now + (0.5 * i));
+        synth.triggerAttackRelease(note, "8n", now + ((1-ControlPanel_SpeedFactor.value) * i));
     }
 }
 
