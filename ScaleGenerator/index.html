@@ -1,5 +1,6 @@
 <html>
 <head>
+    <meta charset="utf-8"/>
     <title>Scale Generator</title>
     <style type="text/css">
         body {
@@ -96,6 +97,7 @@
     </select>Root Note<br>
     <input type="text" id="ControlPanel_UserIntervals"> Manual Intervals? </input><br><br>
     <button id="ControlPanel_Btn" onclick="main()">Generate Scale</button>
+    <br>v2.1
 </div>
 <br><hr><br><br>
 
@@ -299,7 +301,7 @@ function testScaleMatchWithInversions(scaleToTest, scaleToCompareTo) {
 
 function prettifyInterval(interval) {
     switch(interval) {
-        case 0.5: return "½"; 
+        case 0.5: return "½";
         case 1.5: return "1½";
         default: return interval;
     }
