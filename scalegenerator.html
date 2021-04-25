@@ -12,7 +12,7 @@
 </head>
 <body>
 <div id="ControlPanel">
-    <input type="checkbox" id="ControlPanel_Debug"    checked>Debug                     </input><br>
+    <input type="checkbox" id="ControlPanel_Debug"           >Debug                     </input><br>
     <input type="checkbox" id="ControlPanel_SemiSemi"        >Allow subsequent semitones</input><br>
     <select id="ControlPanel_RootNote">
         <option value="C" >C </option>
@@ -83,7 +83,7 @@ function getIntervalBySemitonalWidth(minSemitones, maxSemitones) {
     return getRandomInt(minSemitones, maxSemitones) * 0.5;
 }
 
-function getIntervalArr(allowConsecutiveSemitones) {
+function generateScaleIntervals(allowConsecutiveSemitones) {
     intervalArr = Array();
     lastInterval = 0;
     shouldContinue = true;
@@ -164,6 +164,33 @@ function intervalsToNotes(intervalArr, startingNote) {
     return notesToReturn;
 }
 
+// no objects allowed
+function simpleArraysEqual(arr1, arr2) {
+    return JSON.stringify(arr1) == JSON.stringify(arr2);
+}
+
+function rotateArr(arr) {
+    firstElem = arr[0];
+    toReturn = arr.slice(1, arr.length);
+    toReturn.push(firstElem);
+    return toReturn;
+}
+
+function nameScale(rootNote, scaleIntervals) {
+    // const PENTATONIC_MAJOR_SCALE_INTERVALS = [1,1,1.5,1,1.5];
+    // const MINOR_SCALE_INTERVALS            = [1,0.5,1,1,0.5,1,1];
+    const MAJOR_SCALE_INTERVALS            = [1,1,0.5,1,1,1,0.5];
+    const PENTATONIC_MINOR_SCALE_INTERVALS = [1.5,1,1,1.5,1];
+    const HARMONIC_MINOR_SCALE_INTERVALS   = [1,0.5,1,1,1,1,0.5];
+    const MELODIC_MINOR_SCALE_INTERVALS    = [1,0.5,1,1,0.5,1.5,0.5];
+    const WHOLE_TONE_SCALE_INTERVALS       = [1,1,1,1,1,1];
+    const CHROMATIC_SCALE_INTERVALS        = [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5];
+    const DIMINISHED_ARPEGGIO_INTERVALS    = [1.5,1.5,1.5,1.5];
+    const ALTERED_SCALE_INTERVALS          = [0.5,1,0.5,1,1,1,1];
+
+    return "Unknown scale";
+}
+
 // ##### MAIN
 
 function main() {
@@ -172,18 +199,22 @@ function main() {
     }
     debug("=== START ===");
 
-    intervalArr = getIntervalArr(ControlPanel_SemiSemi.checked);
+    intervalArr = generateScaleIntervals(ControlPanel_SemiSemi.checked);
     print("Intervals [" + arrToString(intervalArr) + "]");
     debug("Sum       [" + safeSumList(intervalArr) + "]");
 
-    debug("");
+    debug("=============");
     if(ControlPanel_SemiSemi.checked) {
         print("Warning: note-naming when allowing consequitve semitones is tricky, so this might be off");
     }
     notes = intervalsToNotes(intervalArr, ControlPanel_RootNote.value);
     print("Notes     [" + arrToString(notes)       + "]");
 
-    // debug("");
+    debug("=============");
+    scaleName = nameScale(ControlPanel_RootNote.value, intervalArr);
+    print("Name      [" + scaleName                + "]");
+
+    // debug("=============");
     // playNotes(notes);
 
     debug("=== FINISH ===");
