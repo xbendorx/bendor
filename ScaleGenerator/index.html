@@ -1,0 +1,351 @@
+<html>
+<head>
+    <title>Scale Generator</title>
+    <style type="text/css">
+        body {
+            text-align: center;
+            color: white;
+            background-color: #272822;
+            font-family: Consolas;
+            font-size: 20px;
+        }
+        debug {
+            background-color: white;
+            color: black;
+            padding-left: 5px;
+            display: inline-block;
+            padding-right: 5px;
+            padding-top: 2px;
+        }
+        warn {
+            background-color: #E6DB67;   
+            color: black;
+            padding-left: 5px;
+            display: inline-block;
+            padding-right: 5px;
+            padding-top: 2px;
+        }
+        note {
+            background-color: #F92672;
+            padding: 20px;
+            margin: 10px;   
+            display: inline-block;
+            width: 75px;
+            height: 75px;
+            font-size: 40px;
+            line-height: 2;
+        }
+        input {
+            margin: 5px;
+            width: 50px;
+            height: 30px;
+            font-size: 20px;
+            vertical-align: middle;
+        }
+        button {
+            font-size: 25px;
+        }
+        select {
+            font-size: 20px; 
+            margin: 5px;  
+        }
+        interval {
+            background-color: #A6E22E;
+            padding: 20px;
+            margin: 30px;
+            margin-bottom: 13px;
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            font-size: 25px;
+            line-height: 1.5;
+            color: black;
+        }
+        name {
+            background-color: #66D9EF;
+            padding: 20px;
+            margin: 20px;
+            display: inline-block;
+            font-size: 20px;
+            line-height: 2;
+            color: black;   
+        }
+        #ControlPanel_UserIntervals {
+            width:200px;
+        }
+    </style>
+</head>
+<body>
+<div id="ControlPanel">
+    <br>
+    <input type="checkbox" id="ControlPanel_Debug"           >Debug Log                 </input><br>
+    <input type="checkbox" id="ControlPanel_SemiSemi"        >Allow subsequent semitones</input><br>
+    <select id="ControlPanel_RootNote">
+        <option value="C" >C </option>
+        <option value="C#">C#</option>
+        <option value="D" >D </option>
+        <option value="D#">D#</option>
+        <option value="E" >E </option>
+        <option value="F" >F </option>
+        <option value="F#">F#</option>
+        <option value="G" >G </option>
+        <option value="G#">G#</option>
+        <option value="A" >A </option>
+        <option value="A#">A#</option>
+        <option value="B" >B </option>
+    </select>Root Note<br>
+    <input type="text" id="ControlPanel_UserIntervals"> Manual Intervals? </input><br><br>
+    <button id="ControlPanel_Btn" onclick="main()">Generate Scale</button>
+</div>
+<br><hr><br><br>
+
+<div id="Results"></div><br>
+<div id="Log"></div>
+
+</body>
+</html>
+<script type="text/javascript">
+
+// ##### DECL
+
+function clearOutput() {
+    Log.innerText = "";
+    while (Results.firstChild) {
+        Results.removeChild(Results.firstChild);
+    }
+}
+
+function br() {
+    return document.createElement('br');
+}
+function log(type, msg) {    
+    var elemToAppend = document.createElement(type);
+    elemToAppend.innerText = msg;
+    Log.appendChild(elemToAppend);
+    Log.appendChild(br());
+}
+
+function debug(msg) {
+    if(debug && !ControlPanel_Debug.checked) {
+        return;
+    }
+    log('debug', msg);
+}
+
+function warn(msg) {
+    log('warn', msg);
+}
+
+function arrToString(arr) {
+    return arr.toLocaleString().replaceAll(",",", ");
+}
+
+function getRandomInt(min, max) {
+    var max = max + 1; // more convenient to make both `min` and `max` inclusive
+    var min = Math.ceil(min);
+    var max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min);
+}
+
+function safeSumList(listToSum) {
+    if(listToSum == undefined ||  listToSum == null || listToSum.length == 0) {
+        return 0;
+    }
+    return listToSum.reduce((x,sum)=>sum+x);
+}
+
+function getIntervalBySemitonalWidth(minSemitones, maxSemitones) {
+    return getRandomInt(minSemitones, maxSemitones) * 0.5;
+}
+
+function generateScaleIntervals(allowConsecutiveSemitones) {
+    var intervalArr = Array();
+    var lastInterval = 0;
+    var shouldContinue = true;
+    var intervalToPush = -1;
+
+    while(shouldContinue) {
+        var intervalSum = safeSumList(intervalArr);
+        var tonesMuchLeft = 6 - intervalSum;
+        debug("Tones left ["+tonesMuchLeft+"]");
+
+        switch(tonesMuchLeft) {
+            case 0  : {
+                debug("Octave complete");
+                shouldContinue = false;
+                break;
+            }
+            case 0.5: {
+                debug("Only 0.5 semitones left - adding that");
+                intervalToPush = 0.5;
+                break;
+            }
+            case 1  : {
+                if(lastInterval == 0.5) {
+                    debug("Only 1 semitone left, and last one was a semitone");
+                    intervalToPush = !allowConsecutiveSemitones ? 1 : getIntervalBySemitonalWidth(1,2);
+                } else {
+                    if(allowConsecutiveSemitones) {
+                        intervalToPush = getIntervalBySemitonalWidth(1,2);
+                    } else {
+                        intervalToPush = 1;
+                    }
+                }
+                break;
+            }
+            default : {
+                if(lastInterval == 0.5 && !allowConsecutiveSemitones) {
+                    debug("Last interval was a semitone and no consequitves are allowed - enforcing");
+                    intervalToPush = getIntervalBySemitonalWidth(2,3);
+                } else {
+                    intervalToPush = getIntervalBySemitonalWidth(1,3);
+                }
+                break;
+            }
+        }
+
+        if (shouldContinue) {
+            debug("Adding ["+intervalToPush+"]");
+            intervalArr.push(intervalToPush);
+            lastInterval = intervalToPush;
+        }
+    }
+
+    return intervalArr;
+}
+
+function nameNotCorrectly(pallet, nextIdx, lastNote) {
+    var nextNote = pallet[nextIdx];
+    if(lastNote.charAt(0) != nextNote.charAt(0)) {
+        return nextNote;
+    }
+    debug("Avoiding bad note naming - lastNote ["+lastNote+"] would-be nextNote ["+nextNote+"]");
+    var candidate = pallet[nextIdx + 1].charAt(0) + "b";
+    if(candidate != lastNote) {
+        return candidate;
+    }
+    debug("New candidate ["+candidate+"] matches previous note ["+lastNote+"] - resulting to double flats");
+    return pallet[nextIdx + 2].charAt(0) + "bb";
+}
+
+function intervalsToNotes(intervalArr, startingNote) {
+    const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", /* looping */ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", /* looping */ "C", "C#", "D", "D#", "E" ];
+    var notePalletToUse = NOTES.slice(NOTES.indexOf(startingNote), NOTES.length);
+    var notesToReturn = [ notePalletToUse[0] ];
+
+    var positionInPallet = 0;
+    var lastNoteAdded = notePalletToUse[positionInPallet];
+    intervalArr.forEach(interval => {
+        var steps = interval / 0.5;
+        positionInPallet += steps;
+        var noteToAdd = nameNotCorrectly(notePalletToUse, positionInPallet, lastNoteAdded);
+        notesToReturn.push(noteToAdd);
+        lastNoteAdded = noteToAdd;
+    });
+
+    return notesToReturn;
+}
+
+// no objects allowed
+function simpleArraysEqual(arr1, arr2) {
+    return JSON.stringify(arr1) == JSON.stringify(arr2);
+}
+
+function rotateArr(arr) {
+    var firstElem = arr[0];
+    var toReturn = arr.slice(1, arr.length);
+    toReturn.push(firstElem);
+    return toReturn;
+}
+
+function nameScale(rootNote, scaleIntervals) {    
+    const SCALES_BANK = {
+        "Diminished Arpeggio" : [1.5, 1.5, 1.5, 1.5], 
+        "Minor Pentatonic"    : [1.5, 1  , 1  , 1.5, 1  ], 
+        // "Pentatonic Major" : [1  , 1  , 1.5, 1  , 1.5],      // already an inversion
+        "Whole Tone"          : [1  , 1  , 1  , 1  , 1  , 1  ], 
+        "Altered"             : [0.5, 1  , 0.5, 1  , 1  , 1  , 1  ],
+        "Major"               : [1  , 1  , 0.5, 1  , 1  , 1  , 0.5], 
+        // "Natural Minor"    : [1  , 0.5, 1  , 1  , 0.5, 1  , 1  ], // already an inversion
+        "Harmonic Minor"      : [1  , 0.5, 1  , 1  , 1  , 1  , 0.5], 
+        "Melodic Minor"       : [1  , 0.5, 1  , 1  , 0.5, 1.5, 0.5], 
+        "Chromatic"           : [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+    }
+
+    for(scaleName in SCALES_BANK) {
+        var activeScale = SCALES_BANK[scaleName];
+        debug("Attempting to match scale with ["+scaleName+"]");
+        var matchedInversion = testScaleMatchWithInversions(scaleIntervals, activeScale);
+        if(matchedInversion > -1) {
+            debug("Scale matched");
+            return scaleName + " inversion " + matchedInversion + " in " + rootNote;
+        }
+    }
+    debug("No scale matched");
+    return "Unknown scale";
+}
+
+function testScaleMatchWithInversions(scaleToTest, scaleToCompareTo) {
+    var scaleRotated = scaleToCompareTo;
+    for (var i = 0; i < scaleToCompareTo.length; ++i) {
+        if(simpleArraysEqual(scaleToTest, scaleRotated)) {
+            return i;
+        }
+        debug("Inverting by ["+i+"]");
+        scaleRotated = rotateArr(scaleRotated);
+    }
+    return -1;
+}
+
+function prettifyInterval(interval) {
+    switch(interval) {
+        case 0.5: return "½";
+        case 1.5: return "1½";
+        default: return interval;
+    }
+}
+
+function outputResult(type, value) {
+    var elemToAppend = null;
+    if(type == null) {
+        elemToAppend = br();
+    } else {
+        elemToAppend = document.createElement(type);
+        elemToAppend.innerText = prettifyInterval(value);
+    }
+    Results.appendChild(elemToAppend);
+}
+
+// ##### MAIN
+
+function main() {
+    clearOutput();
+    debug("=== START ===");
+    
+    debug("=== Handling Intervals ===");
+    var intervalArr = ControlPanel_UserIntervals.value == "" ? generateScaleIntervals(ControlPanel_SemiSemi.checked) : ControlPanel_UserIntervals.value.split(",").map(v => parseFloat(v));
+    intervalArr.forEach(interval => outputResult('interval', interval));
+    outputResult(null);
+    debug("Interval Sum   [" + safeSumList(intervalArr) + "]");
+    debug("Interval Count [" + intervalArr.length       + "]");
+    debug("=== Naming Notes ===");
+    
+    if(ControlPanel_SemiSemi.checked) {
+        warn("Note-naming when allowing consequitve semitones can be tricky, so this might be off");
+    }
+    var notes = intervalsToNotes(intervalArr, ControlPanel_RootNote.value);
+    notes.forEach(note => outputResult('note', note));
+    outputResult(null);
+
+    debug("=== Naming Scale ===");
+    var scaleName = nameScale(ControlPanel_RootNote.value, intervalArr);
+    outputResult('name', scaleName);
+
+    // debug("=============");
+    // playNotes(notes);
+
+    debug("=== FINISH ===");
+}
+
+
+</script>
