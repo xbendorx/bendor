@@ -19,7 +19,7 @@
             padding-top: 2px;
         }
         log_warn {
-            background-color: #E6DB67;   
+            background-color: #E6DB67;
             color: black;
             padding-left: 5px;
             display: inline-block;
@@ -29,7 +29,7 @@
         note {
             background-color: #F92672;
             padding: 20px;
-            margin: 10px;   
+            margin: 10px;
             display: inline-block;
             width: 55px;
             height: 55px;
@@ -55,7 +55,7 @@
             display: inline-block;
             font-size: 20px;
             line-height: 2;
-            color: black;   
+            color: black;
         }
         .button {
             font-size: 20px;
@@ -166,7 +166,7 @@ function clearOutput() {
 function br() {
     return document.createElement('br');
 }
-function log(type, msg) {    
+function log(type, msg) {
     var elemToAppend = document.createElement(type);
     elemToAppend.innerText = msg;
     Log.appendChild(elemToAppend);
@@ -284,8 +284,8 @@ function nameNotCorrectly(pallet, nextIdx, lastNote) {
 }
 
 function intervalsToNotes(intervalArr, startingNote) {
-    const NOTES = ["C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4", // looping 
-                   "C5", "C#5", "D5", "D#5", "E5", "F5", "F#5", "G5", "G#5", "A5", "A#5", "B5", // looping 
+    const NOTES = ["C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4", // looping
+                   "C5", "C#5", "D5", "D#5", "E5", "F5", "F#5", "G5", "G#5", "A5", "A#5", "B5", // looping
                    "C6", "C#6", "D6", "D#6", "E6" ];
     var notePalletToUse = NOTES.slice(NOTES.indexOf(startingNote + "4"), NOTES.length);
     var notesToReturn = [ notePalletToUse[0] ];
@@ -317,16 +317,16 @@ function rotateArr(arr) {
     return toReturn;
 }
 
-function nameScale(rootNote, scaleIntervals) {    
+function nameScale(rootNote, scaleIntervals) {
     const SCALES_BANK = {
-        "Diminished Arpeggio" : [1.5, 1.5, 1.5, 1.5], 
-        "Minor Pentatonic"    : [1.5, 1  , 1  , 1.5, 1  ], 
+        "Diminished Arpeggio" : [1.5, 1.5, 1.5, 1.5],
+        "Minor Pentatonic"    : [1.5, 1  , 1  , 1.5, 1  ],
         // "Pentatonic Major" : [1  , 1  , 1.5, 1  , 1.5],      // already an inversion
-        "Whole Tone"          : [1  , 1  , 1  , 1  , 1  , 1  ], 
-        "Major"               : [1  , 1  , 0.5, 1  , 1  , 1  , 0.5], 
+        "Whole Tone"          : [1  , 1  , 1  , 1  , 1  , 1  ],
+        "Major"               : [1  , 1  , 0.5, 1  , 1  , 1  , 0.5],
         // "Natural Minor"    : [1  , 0.5, 1  , 1  , 0.5, 1  , 1  ], // already an inversion
-        "Harmonic Minor"      : [1  , 0.5, 1  , 1  , 1  , 1  , 0.5], 
-        "Melodic Minor"       : [1  , 0.5, 1  , 1  , 0.5, 1.5, 0.5], 
+        "Harmonic Minor"      : [1  , 0.5, 1  , 1  , 1  , 1  , 0.5],
+        "Melodic Minor"       : [1  , 0.5, 1  , 1  , 0.5, 1.5, 0.5],
         "Altered"             : [0.5, 1  , 0.5, 1  , 1  , 1  , 1  ],
         "Chromatic"           : [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
     }
@@ -388,7 +388,7 @@ function generate() {
     clearOutput();
     ControlPanel_Play.disabled = false;
     debug("=== START ===");
-    
+
     debug("=== Handling Intervals ===");
     var intervalArr = ControlPanel_UserIntervals.value == "" ? generateScaleIntervals(ControlPanel_SemiSemi.checked) : ControlPanel_UserIntervals.value.split(",").map(v => parseFloat(v)).filter(v => !isNaN(v));
     intervalArr.forEach(interval => outputResult('interval', interval));
@@ -396,7 +396,7 @@ function generate() {
     debug("Interval Sum   [" + safeSumList(intervalArr) + "]");
     debug("Interval Count [" + intervalArr.length       + "]");
     debug("=== Naming Notes ===");
-    
+
     if(ControlPanel_SemiSemi.checked) {
         warn("Note-naming when allowing consequitve semitones can be tricky, so this might be off");
     }
@@ -411,15 +411,23 @@ function generate() {
     debug("=== FINISH ===");
 }
 
-function play() {
-    var allNotes = Array.from(document.getElementsByTagName('note')).map(elem => elem.noteValue);
+function flashElement(elem, length) {
     
+}
+
+function play() {
+    var allNoteElems = document.getElementsByTagName('note');
+    var allNotes = Array.from(allNoteElems).map(elem => elem.noteValue);
+
     var synth = new Tone.Synth().toDestination();
-    var now = Tone.now()    
+    var now = Tone.now()
     for(var i = 0; i< allNotes.length; ++i) {
+        var noteElem = allNoteElems[i];
         var note = allNotes[i];
         debug("Playing ["+note+"]");
-        synth.triggerAttackRelease(note, "8n", now + ((1-ControlPanel_SpeedFactor.value) * i));
+        var delay = (1-ControlPanel_SpeedFactor.value);
+        synth.triggerAttackRelease(note, "8n", now + (delay * i));
+        flashElement(noteElem, 200);
     }
 }
 
