@@ -10,7 +10,7 @@
             font-family: Consolas;
             font-size: 20px;
         }
-        debug {
+        log_debug {
             background-color: white;
             color: black;
             padding-left: 5px;
@@ -18,7 +18,7 @@
             padding-right: 5px;
             padding-top: 2px;
         }
-        warn {
+        log_warn {
             background-color: #E6DB67;   
             color: black;
             padding-left: 5px;
@@ -36,22 +36,6 @@
             font-size: 40px;
             line-height: 2;
         }
-        input {
-            margin: 5px;
-            width: 50px;
-            height: 30px;
-            font-size: 20px;
-            vertical-align: middle;
-        }
-        button {
-            font-size: 20px;
-            padding: 10px;
-            font-family: consolas;
-        }
-        select {
-            font-size: 20px; 
-            margin: 5px;  
-        }
         interval {
             background-color: #A6E22E;
             padding: 20px;
@@ -64,7 +48,7 @@
             line-height: 1.5;
             color: black;
         }
-        name {
+        scale_name {
             background-color: #66D9EF;
             padding: 20px;
             margin: 20px;
@@ -73,32 +57,83 @@
             line-height: 2;
             color: black;   
         }
+        .button {
+            font-size: 20px;
+            padding: 10px;
+            font-family: consolas;
+            margin-left: 5px;
+        }
+        .dropdown {
+            font-size: 20px; 
+            margin: 5px;  
+        }
+        
         #ControlPanel_UserIntervals {
             width:200px;
+        }
+        .table {
+            display: inline-block;
+            border: aliceblue;
+            border-style: dashed;
+            border-color: #848484;
+        }
+        .table_cell {
+            padding: 10px;
+        }
+        .checkbox {
+            margin: 5px;
+            width: 25;
+            height: 27px;
+            font-size: 20px;
+            vertical-align: middle;
+            margin-right: 13px;
+        }
+        .textinput {
+            font-size: 20px;
+            margin-left: 5px;
+            padding: 5px;
+        }
+        .right_aligned {
+            text-align: right;
         }
     </style>
 </head>
 <body>
+<br>
 <div id="ControlPanel">
-    <br>
-    <input type="checkbox" id="ControlPanel_Debug"           >Debug Log                 </input><br>
-    <input type="checkbox" id="ControlPanel_SemiSemi"        >Allow subsequent semitones</input><br>
-    <select id="ControlPanel_RootNote">
-        <option value="C" >C </option>
-        <option value="C#">C#</option>
-        <option value="D" >D </option>
-        <option value="D#">D#</option>
-        <option value="E" >E </option>
-        <option value="F" >F </option>
-        <option value="F#">F#</option>
-        <option value="G" >G </option>
-        <option value="G#">G#</option>
-        <option value="A" >A </option>
-        <option value="A#">A#</option>
-        <option value="B" >B </option>
-    </select>Root Note<br>
-    <input type="text" id="ControlPanel_UserIntervals"> Manual Intervals? (CSV) </input><br><br>
-    <button id="ControlPanel_Btn" onclick="main()">Generate Scale</button>
+    <table class="table">
+        <tr>
+            <td class="table_cell"><input class="checkbox" type="checkbox" id="ControlPanel_SemiSemi">Allow subsequent semitones</input>
+            <td class="table_cell"><input class="checkbox" type="checkbox" id="ControlPanel_Debug">Debug Log</input><br>
+        </tr>
+        <tr>
+            <td class="table_cell"><select class="dropdown" id="ControlPanel_RootNote">
+                <option value="C" >C </option>
+                <option value="C#">C#</option>
+                <option value="D" >D </option>
+                <option value="D#">D#</option>
+                <option value="E" >E </option>
+                <option value="F" >F </option>
+                <option value="F#">F#</option>
+                <option value="G" >G </option>
+                <option value="G#">G#</option>
+                <option value="A" >A </option>
+                <option value="A#">A#</option>
+                <option value="B" >B </option>
+            </select>Root Note<br>
+            <td class="table_cell"><button class="button" id="ControlPanel_Generate" onclick="main()">Generate Scale</button>
+        </tr>
+        <tr>
+            <td class="table_cell"><input class="textinput" type="text" id="ControlPanel_UserIntervals"> Manual Intervals? (CSV) </input>
+            <td class="table_cell right_aligned" ><button class="button" id="ControlPanel_Play" onclick="play()" disabled>Play</button>
+        </tr>
+    </table>
+    
+    
+    
+    
+    
+    
 </div>
 <br><hr><br><br>
 
@@ -107,9 +142,9 @@
 
 </body>
 </html>
+<!-- <script src="timbre.js"></script> -->
+<script src="https://unpkg.com/tone"></script>
 <script type="text/javascript">
-
-// ##### DECL
 
 function clearOutput() {
     Log.innerText = "";
@@ -132,11 +167,11 @@ function debug(msg) {
     if(debug && !ControlPanel_Debug.checked) {
         return;
     }
-    log('debug', msg);
+    log('log_debug', msg);
 }
 
 function warn(msg) {
-    log('warn', msg);
+    log('log_warn', msg);
 }
 
 function arrToString(arr) {
@@ -319,10 +354,9 @@ function outputResult(type, value) {
     Results.appendChild(elemToAppend);
 }
 
-// ##### MAIN
-
 function main() {
     clearOutput();
+    ControlPanel_Play.disabled = false;
     debug("=== START ===");
     
     debug("=== Handling Intervals ===");
@@ -342,7 +376,7 @@ function main() {
 
     debug("=== Naming Scale ===");
     var scaleName = nameScale(ControlPanel_RootNote.value, intervalArr);
-    outputResult('name', scaleName);
+    outputResult('scale_name', scaleName);
 
     // debug("=============");
     // playNotes(notes);
@@ -350,5 +384,19 @@ function main() {
     debug("=== FINISH ===");
 }
 
+function play() {
+    var allNotes = Array.from(document.getElementsByTagName('note')).map(elem => elem.innerText);
+    allNotes = allNotes.map(note => note + "4");
+    if(allNotes[0] == allNotes[allNotes.length-1]) {
+        allNotes[allNotes.length-1] = allNotes[allNotes.length-1].replace("4","5"); //last tone as octave
+    }
+    
+    var synth = new Tone.Synth().toDestination();
+    var now = Tone.now()    
+    for(var i = 0; i< allNotes.length; ++i) {
+        var note = allNotes[i];
+        synth.triggerAttackRelease(note, "8n", now + (0.5 * i));
+    }
+}
 
 </script>
