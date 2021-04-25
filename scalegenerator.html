@@ -8,6 +8,12 @@
         #Results {
             font-family: Consolas;
         }
+        debug {
+            background-color: #F2AEAE;
+        }
+        log {
+            background-color: #C0E2FF;
+        }
     </style>
 </head>
 <body>
@@ -46,19 +52,22 @@ function clearOutput() {
     Results.innerText = "";
 }
 
-function log(msg, force = false) {
-    if(!force && !ControlPanel_Debug.checked) {
+function log(msg, debug = false) {
+    if(debug && !ControlPanel_Debug.checked) {
         return;
     }
-    Results.innerText = document.getElementById('Results').innerText + "\n" + msg;
+    var elemToAppend = document.createElement(debug? "debug" : "log");
+    elemToAppend.innerText = msg;
+    Results.appendChild(elemToAppend);
+    Results.appendChild(document.createElement('br'));
 }
 
 function debug(msg) {
-    log(msg == "" ? "" : "DEBUG:: " + msg);
+    log(msg, true);
 }
 
 function print(msg) {
-    log(msg, true);
+    log(msg);
 }
 
 function arrToString(arr) {
@@ -154,7 +163,7 @@ function nameNotCorrectly(pallet, nextIdx, lastNote) {
 }
 
 function intervalsToNotes(intervalArr, startingNote) {
-    const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", /* looping */ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", /* looping */, "C", "C#", "D" ];
+    const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", /* looping */ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", /* looping */ "C", "C#", "D", "D#", "E" ];
     var notePalletToUse = NOTES.slice(NOTES.indexOf(startingNote), NOTES.length);
     var notesToReturn = [ notePalletToUse[0] ];
 
