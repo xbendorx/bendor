@@ -128,7 +128,7 @@
                 <option value="A#">A#</option>
                 <option value="B" >B </option>
             </select>Root Note<br>
-            <td class="table_cell"><button class="button" id="ControlPanel_Generate" onclick="main()">Generate Scale</button>
+            <td class="table_cell"><button class="button" id="ControlPanel_Generate" onclick="generate()">Generate Scale</button>
         </tr>
         <tr>
             <td class="table_cell"><input class="textinput" type="text" id="ControlPanel_UserIntervals"> Manual Intervals? (CSV) </input>
@@ -148,7 +148,9 @@
 <script type="text/javascript">
 
 function clearOutput() {
-    Log.innerText = "";
+    while (Log.firstChild) {
+        Log.removeChild(Log.firstChild);
+    }
     while (Results.firstChild) {
         Results.removeChild(Results.firstChild);
     }
@@ -191,6 +193,10 @@ function safeSumList(listToSum) {
         return 0;
     }
     return listToSum.reduce((x,sum)=>sum+x);
+}
+
+function poppedString(str) {
+    return str.slice(0, str.length-1);
 }
 
 function getIntervalBySemitonalWidth(minSemitones, maxSemitones) {
@@ -286,7 +292,9 @@ function intervalsToNotes(intervalArr, startingNote) {
         notesToReturn.push(noteToAdd);
         lastNoteAdded = noteToAdd;
     });
-
+    if(poppedString(notesToReturn[0]) != poppedString(notesToReturn[notesToReturn.length-1])) {
+        warn("First and last notes don't match due to this tool comparing notes only upwards. Might fix sometime :-)");
+    }
     return notesToReturn;
 }
 
@@ -308,11 +316,11 @@ function nameScale(rootNote, scaleIntervals) {
         "Minor Pentatonic"    : [1.5, 1  , 1  , 1.5, 1  ], 
         // "Pentatonic Major" : [1  , 1  , 1.5, 1  , 1.5],      // already an inversion
         "Whole Tone"          : [1  , 1  , 1  , 1  , 1  , 1  ], 
-        "Altered"             : [0.5, 1  , 0.5, 1  , 1  , 1  , 1  ],
         "Major"               : [1  , 1  , 0.5, 1  , 1  , 1  , 0.5], 
         // "Natural Minor"    : [1  , 0.5, 1  , 1  , 0.5, 1  , 1  ], // already an inversion
         "Harmonic Minor"      : [1  , 0.5, 1  , 1  , 1  , 1  , 0.5], 
         "Melodic Minor"       : [1  , 0.5, 1  , 1  , 0.5, 1.5, 0.5], 
+        "Altered"             : [0.5, 1  , 0.5, 1  , 1  , 1  , 1  ],
         "Chromatic"           : [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
     }
 
@@ -369,7 +377,7 @@ function createNote(noteName, noteValue) {
     return toReturn;
 }
 
-function main() {
+function generate() {
     clearOutput();
     ControlPanel_Play.disabled = false;
     debug("=== START ===");
