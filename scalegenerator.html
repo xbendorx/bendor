@@ -66,9 +66,9 @@ function arrToString(arr) {
 }
 
 function getRandomInt(min, max) {
-    max = max + 1; // more convenient to make both `min` and `max` inclusive
-    min = Math.ceil(min);
-    max = Math.floor(max);
+    var max = max + 1; // more convenient to make both `min` and `max` inclusive
+    var min = Math.ceil(min);
+    var max = Math.floor(max);
     return Math.floor(Math.random() * (max - min) + min);
 }
 
@@ -84,13 +84,14 @@ function getIntervalBySemitonalWidth(minSemitones, maxSemitones) {
 }
 
 function generateScaleIntervals(allowConsecutiveSemitones) {
-    intervalArr = Array();
-    lastInterval = 0;
-    shouldContinue = true;
+    var intervalArr = Array();
+    var lastInterval = 0;
+    var shouldContinue = true;
+    var intervalToPush = -1;
 
     while(shouldContinue) {
-        intervalSum = safeSumList(intervalArr);
-        tonesMuchLeft = 6 - intervalSum;
+        var intervalSum = safeSumList(intervalArr);
+        var tonesMuchLeft = 6 - intervalSum;
         debug("Tones left ["+tonesMuchLeft+"]");
 
         switch(tonesMuchLeft) {
@@ -109,7 +110,11 @@ function generateScaleIntervals(allowConsecutiveSemitones) {
                     debug("Only 1 semitone left, and last one was a semitone");
                     intervalToPush = !allowConsecutiveSemitones ? 1 : getIntervalBySemitonalWidth(1,2);
                 } else {
-                    intervalToPush = getIntervalBySemitonalWidth(1,2);
+                    if(allowConsecutiveSemitones) {
+                        intervalToPush = getIntervalBySemitonalWidth(1,2);
+                    } else {
+                        intervalToPush = 1;
+                    }
                 }
                 break;
             }
@@ -135,25 +140,30 @@ function generateScaleIntervals(allowConsecutiveSemitones) {
 }
 
 function nameNotCorrectly(pallet, nextIdx, lastNote) {
-    nextNote = pallet[nextIdx];
+    var nextNote = pallet[nextIdx];
     if(/* ControlPanel_SemiSemi.checked || */ lastNote.charAt(0) != nextNote.charAt(0)) {
         return nextNote;
     }
     debug("Avoiding bad note naming - lastNote ["+lastNote+"] would-be nextNote ["+nextNote+"]");
-    return pallet[nextIdx + 1].charAt(0) + "b";
+    var candidate = pallet[nextIdx + 1].charAt(0) + "b";
+    if(candidate != lastNote) {
+        return candidate;
+    }
+    debug("New candidate ["+candidate+"] matches previous note ["+lastNote+"] - resulting to double flats");
+    return pallet[nextIdx + 2].charAt(0) + "bb";
 }
 
 function intervalsToNotes(intervalArr, startingNote) {
     const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", /* looping */ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", /* looping */, "C", "C#", "D" ];
-    notePalletToUse = NOTES.slice(NOTES.indexOf(startingNote), NOTES.length);
-    notesToReturn = [ notePalletToUse[0] ];
+    var notePalletToUse = NOTES.slice(NOTES.indexOf(startingNote), NOTES.length);
+    var notesToReturn = [ notePalletToUse[0] ];
 
-    positionInPallet = 0;
-    lastNoteAdded = notePalletToUse[positionInPallet];
+    var positionInPallet = 0;
+    var lastNoteAdded = notePalletToUse[positionInPallet];
     intervalArr.forEach(interval => {
-        steps = interval / 0.5;
+        var steps = interval / 0.5;
         positionInPallet += steps;
-        noteToAdd = nameNotCorrectly(notePalletToUse, positionInPallet, lastNoteAdded);
+        var noteToAdd = nameNotCorrectly(notePalletToUse, positionInPallet, lastNoteAdded);
         notesToReturn.push(noteToAdd);
         lastNoteAdded = noteToAdd;
     });
@@ -170,8 +180,8 @@ function simpleArraysEqual(arr1, arr2) {
 }
 
 function rotateArr(arr) {
-    firstElem = arr[0];
-    toReturn = arr.slice(1, arr.length);
+    var firstElem = arr[0];
+    var toReturn = arr.slice(1, arr.length);
     toReturn.push(firstElem);
     return toReturn;
 }
@@ -181,7 +191,7 @@ function nameScale(rootNote, scaleIntervals) {
         // "Pentatonic Major" : [1,1,1.5,1,1.5],
         // "Natural Minor"    : [1,0.5,1,1,0.5,1,1],
         "Major"               : [1,1,0.5,1,1,1,0.5],
-        "Pentatonic"          : [1.5,1,1,1.5,1],
+        "Minor Pentatonic"    : [1.5,1,1,1.5,1],
         "Harmonic Minor"      : [1,0.5,1,1,1,1,0.5],
         "Melodic Minor"       : [1,0.5,1,1,0.5,1.5,0.5],
         "Whole Tone"          : [1,1,1,1,1,1],
@@ -191,8 +201,8 @@ function nameScale(rootNote, scaleIntervals) {
     }
 
     for(scaleName in SCALES_BANK) {
-        activeScale = SCALES_BANK[scaleName];
-        matchedInversion   = testScaleMatchWithInversions(scaleIntervals, activeScale);
+        var activeScale = SCALES_BANK[scaleName];
+        var matchedInversion = testScaleMatchWithInversions(scaleIntervals, activeScale);
         if(matchedInversion > -1) {
             return scaleName + " inversion " + matchedInversion + " in " + rootNote;
         }
@@ -202,7 +212,7 @@ function nameScale(rootNote, scaleIntervals) {
 }
 
 function testScaleMatchWithInversions(scaleToTest, scaleToCompareTo) {
-    scaleRotated = scaleToCompareTo;
+    var scaleRotated = scaleToCompareTo;
     for (var i = 0; i < scaleToCompareTo.length; ++i) {
         if(simpleArraysEqual(scaleToTest, scaleRotated)) {
             return i;
