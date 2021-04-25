@@ -35,7 +35,7 @@
             line-height: 2;
         }
         input {
-            margin: 10px;
+            margin: 5px;
             width: 50px;
             height: 30px;
             font-size: 20px;
@@ -46,10 +46,18 @@
         }
         select {
             font-size: 20px; 
-            margin: 15px;  
+            margin: 5px;  
         }
-        #ControlPanel {
-            /*width:400px;*/
+        interval {
+            background-color: #A6E22E;
+            padding: 20px;
+            margin: 20px;
+            display: inline-block;
+            width: 55px;
+            height: 55px;
+            font-size: 30px;
+            line-height: 2;
+            color: black;
         }
     </style>
 </head>
@@ -93,11 +101,14 @@ function clearOutput() {
     }
 }
 
+function br() {
+    return document.createElement('br');
+}
 function log(type, msg) {    
     var elemToAppend = document.createElement(type);
     elemToAppend.innerText = msg;
     Log.appendChild(elemToAppend);
-    Log.appendChild(document.createElement('br'));
+    Log.appendChild(br());
 }
 
 function debug(msg) {
@@ -222,9 +233,9 @@ function intervalsToNotes(intervalArr, startingNote) {
         lastNoteAdded = noteToAdd;
     });
 
-    if(!ControlPanel_Debug.checked) {
-        notesToReturn.pop(); // drop the duplicate octave if not debugging
-    }
+    // if(!ControlPanel_Debug.checked) {
+        // notesToReturn.pop(); // drop the duplicate octave if not debugging
+    // }
     return notesToReturn;
 }
 
@@ -276,6 +287,13 @@ function testScaleMatchWithInversions(scaleToTest, scaleToCompareTo) {
     return -1;
 }
 
+function prettifyInterval(interval) {
+    switch(interval) {
+        case 0.5: return "½";
+        case 1.5: return "1½";
+        default: return interval;
+    }
+}
 // ##### MAIN
 
 function main() {
@@ -283,15 +301,20 @@ function main() {
     debug("=== START ===");
 
     intervalArr = generateScaleIntervals(ControlPanel_SemiSemi.checked);
-    print("Intervals [" + arrToString(intervalArr) + "]");
-    debug("Sum       [" + safeSumList(intervalArr) + "]");
-    debug("Count     [" + intervalArr.length       + "]");
+    // print("Intervals [" + arrToString(intervalArr) + "]");
+    intervalArr.forEach(interval => {
+        var elemToAppend = document.createElement('interval');
+        elemToAppend.innerText = prettifyInterval(interval);
+        Results.appendChild(elemToAppend);
+    });
+    Results.appendChild(br());
+    debug("Interval Sum   [" + safeSumList(intervalArr) + "]");
+    debug("Interval Count [" + intervalArr.length       + "]");
     debug("=============");
     if(ControlPanel_SemiSemi.checked) {
         warn("Note-naming when allowing consequitve semitones is tricky, so this might be off");
     }
     notes = intervalsToNotes(intervalArr, ControlPanel_RootNote.value);
-    // print("Notes     [" + arrToString(notes)       + "]");
     notes.forEach(note => {
         var elemToAppend = document.createElement('note');
         elemToAppend.innerText = note;
@@ -300,7 +323,7 @@ function main() {
 
     debug("=============");
     scaleName = nameScale(ControlPanel_RootNote.value, intervalArr);
-    print("Name      [" + scaleName                + "]");
+    print("Scale Name [" + scaleName                + "]");
 
     // debug("=============");
     // playNotes(notes);
