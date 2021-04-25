@@ -98,7 +98,8 @@
         <option value="B" >B </option>
     </select>Root Note<br>
     <input type="text" id="ControlPanel_UserIntervals"> Manual Intervals? (CSV) </input><br><br>
-    <button id="ControlPanel_Btn" onclick="main()">Generate Scale</button>
+    <button id="ControlPanel_Generate" onclick="main()">Generate Scale</button>
+    <button id="ControlPanel_Play" onclick="play()">Play</button>
 </div>
 <br><hr><br><br>
 
@@ -107,9 +108,9 @@
 
 </body>
 </html>
+<!-- <script src="timbre.js"></script> -->
+<script src="https://unpkg.com/tone"></script>
 <script type="text/javascript">
-
-// ##### DECL
 
 function clearOutput() {
     Log.innerText = "";
@@ -319,8 +320,6 @@ function outputResult(type, value) {
     Results.appendChild(elemToAppend);
 }
 
-// ##### MAIN
-
 function main() {
     clearOutput();
     debug("=== START ===");
@@ -350,5 +349,24 @@ function main() {
     debug("=== FINISH ===");
 }
 
+function play() {
+    var allNotes = Array.from(document.getElementsByTagName('note')).map(elem => elem.innerText);
+    if(allNotes.length < 1) {
+        alert("No notes on screen");
+        return;
+    }
+
+    allNotes = allNotes.map(note => note + "4");
+    if(allNotes[0] == allNotes[allNotes.length-1]) {
+        allNotes[allNotes.length-1] = allNotes[allNotes.length-1].replace("4","5"); //last tone as octave
+    }
+    
+    var synth = new Tone.Synth().toDestination();
+    var now = Tone.now()    
+    for(var i = 0; i< allNotes.length; ++i) {
+        var note = allNotes[i];
+        synth.triggerAttackRelease(note, "8n", now + (0.5 * i));
+    }
+}
 
 </script>
