@@ -14,6 +14,9 @@
         log {
             background-color: #C0E2FF;
         }
+        warn {
+            background-color: #EED286;   
+        }
     </style>
 </head>
 <body>
@@ -52,22 +55,26 @@ function clearOutput() {
     Results.innerText = "";
 }
 
-function log(msg, debug = false) {
-    if(debug && !ControlPanel_Debug.checked) {
-        return;
-    }
-    var elemToAppend = document.createElement(debug? "debug" : "log");
+function log(type, msg) {    
+    var elemToAppend = document.createElement(type);
     elemToAppend.innerText = msg;
     Results.appendChild(elemToAppend);
     Results.appendChild(document.createElement('br'));
 }
 
 function debug(msg) {
-    log(msg, true);
+    if(debug && !ControlPanel_Debug.checked) {
+        return;
+    }
+    log('debug', msg);
+}
+
+function warn(msg) {
+    log('warn', msg);
 }
 
 function print(msg) {
-    log(msg);
+    log('log', msg);
 }
 
 function arrToString(arr) {
@@ -246,7 +253,7 @@ function main() {
     debug("Count     [" + intervalArr.length       + "]");
     debug("=============");
     if(ControlPanel_SemiSemi.checked) {
-        print("Warning: note-naming when allowing consequitve semitones is tricky, so this might be off");
+        warn("Note-naming when allowing consequitve semitones is tricky, so this might be off");
     }
     notes = intervalsToNotes(intervalArr, ControlPanel_RootNote.value);
     print("Notes     [" + arrToString(notes)       + "]");
