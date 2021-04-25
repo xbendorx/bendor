@@ -98,6 +98,11 @@
         .right_aligned {
             text-align: right;
         }
+        .hr {
+            height: 5px;
+            background-color: #C3C3C3;
+            border-style: none;
+        }
     </style>
 </head>
 <body>
@@ -130,22 +135,16 @@
             <td class="table_cell right_aligned" ><button class="button" id="ControlPanel_Play" onclick="play()" disabled>Play</button>
         </tr>
     </table>
-    
-    
-    
-    
-    
-    
 </div>
-<br><hr><br><br>
+
+<br><br><hr class="hr"><br><br>
 
 <div id="Results"></div><br>
 <div id="Log"></div>
 
 </body>
 </html>
-<!-- <script src="timbre.js"></script> -->
-<script src="https://unpkg.com/tone"></script>
+<script src="./Tone.js"></script>
 <script type="text/javascript">
 
 function clearOutput() {
