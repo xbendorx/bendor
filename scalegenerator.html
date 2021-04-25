@@ -9,20 +9,21 @@
             font-family: Consolas;
             font-size: 20px;
         }
-        #Log {
-            /*font-family: Consolas;*/
-        }
         debug {
-            background-color: #F18C8C;
+            background-color: white;
             color: black;
-        }
-        log {
-            background-color: #66D9EF;
-            color: black;
+            padding-left: 5px;
+            display: inline-block;
+            padding-right: 5px;
+            padding-top: 2px;
         }
         warn {
             background-color: #E6DB67;   
             color: black;
+            padding-left: 5px;
+            display: inline-block;
+            padding-right: 5px;
+            padding-top: 2px;
         }
         note {
             background-color: #F92672;
@@ -51,20 +52,31 @@
         interval {
             background-color: #A6E22E;
             padding: 20px;
-            margin: 20px;
+            margin: 30px;
+            margin-bottom: 13px;
             display: inline-block;
-            width: 55px;
-            height: 55px;
-            font-size: 30px;
-            line-height: 2;
+            width: 35px;
+            height: 35px;
+            font-size: 25px;
+            line-height: 1.5;
             color: black;
         }
+        name {
+            background-color: #66D9EF;
+            padding: 20px;
+            margin: 20px;
+            display: inline-block;
+            font-size: 20px;
+            line-height: 2;
+            color: black;   
+        }
+
     </style>
 </head>
 <body>
 <div id="ControlPanel">
     <br>
-    <input type="checkbox" id="ControlPanel_Debug"           >Debug                     </input><br>
+    <input type="checkbox" id="ControlPanel_Debug"           >Debug Log                 </input><br>
     <input type="checkbox" id="ControlPanel_SemiSemi"        >Allow subsequent semitones</input><br>
     <select id="ControlPanel_RootNote">
         <option value="C" >C </option>
@@ -84,12 +96,11 @@
 </div>
 <br><hr><br><br>
 
-<div id="Results"></div><br><br>
+<div id="Results"></div><br>
 <div id="Log"></div>
 
 </body>
 </html>
-<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
 <script type="text/javascript">
 
 // ##### DECL
@@ -120,10 +131,6 @@ function debug(msg) {
 
 function warn(msg) {
     log('warn', msg);
-}
-
-function print(msg) {
-    log('log', msg);
 }
 
 function arrToString(arr) {
@@ -253,26 +260,28 @@ function rotateArr(arr) {
 
 function nameScale(rootNote, scaleIntervals) {    
     const SCALES_BANK = {
-        // "Pentatonic Major" : [1,1,1.5,1,1.5],
-        // "Natural Minor"    : [1,0.5,1,1,0.5,1,1],
-        "Major"               : [1,1,0.5,1,1,1,0.5],
-        "Minor Pentatonic"    : [1.5,1,1,1.5,1],
-        "Harmonic Minor"      : [1,0.5,1,1,1,1,0.5],
-        "Melodic Minor"       : [1,0.5,1,1,0.5,1.5,0.5],
-        "Whole Tone"          : [1,1,1,1,1,1],
-        "Chromatic"           : [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],
-        "Diminished Arpeggio" : [1.5,1.5,1.5,1.5],
-        "Altered"             : [0.5,1,0.5,1,1,1,1]
+        "Diminished Arpeggio" : [1.5, 1.5, 1.5, 1.5], 
+        "Minor Pentatonic"    : [1.5, 1  , 1  , 1.5, 1  ], 
+        // "Pentatonic Major" : [1  , 1  , 1.5, 1  , 1.5],      // already an inversion
+        "Whole Tone"          : [1  , 1  , 1  , 1  , 1  , 1  ], 
+        "Altered"             : [0.5, 1  , 0.5, 1  , 1  , 1  , 1  ],
+        "Major"               : [1  , 1  , 0.5, 1  , 1  , 1  , 0.5], 
+        // "Natural Minor"    : [1  , 0.5, 1  , 1  , 0.5, 1  , 1  ], // already an inversion
+        "Harmonic Minor"      : [1  , 0.5, 1  , 1  , 1  , 1  , 0.5], 
+        "Melodic Minor"       : [1  , 0.5, 1  , 1  , 0.5, 1.5, 0.5], 
+        "Chromatic"           : [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
     }
 
     for(scaleName in SCALES_BANK) {
         var activeScale = SCALES_BANK[scaleName];
+        debug("Attempting to match scale with ["+scaleName+"]");
         var matchedInversion = testScaleMatchWithInversions(scaleIntervals, activeScale);
         if(matchedInversion > -1) {
+            debug("Scale matched");
             return scaleName + " inversion " + matchedInversion + " in " + rootNote;
         }
     }
-
+    debug("No scale matched");
     return "Unknown scale";
 }
 
@@ -282,6 +291,7 @@ function testScaleMatchWithInversions(scaleToTest, scaleToCompareTo) {
         if(simpleArraysEqual(scaleToTest, scaleRotated)) {
             return i;
         }
+        debug("Inverting by ["+i+"]");
         scaleRotated = rotateArr(scaleRotated);
     }
     return -1;
@@ -294,42 +304,47 @@ function prettifyInterval(interval) {
         default: return interval;
     }
 }
+
+function outputResult(type, value) {
+    var elemToAppend = null;
+    if(type == null) {
+        elemToAppend = br();
+    } else {
+        elemToAppend = document.createElement(type);
+        elemToAppend.innerText = prettifyInterval(value);
+    }
+    Results.appendChild(elemToAppend);
+}
+
 // ##### MAIN
 
 function main() {
     clearOutput();
     debug("=== START ===");
-
+    
+    debug("=== Generating Intervals ===");
     intervalArr = generateScaleIntervals(ControlPanel_SemiSemi.checked);
-    // print("Intervals [" + arrToString(intervalArr) + "]");
-    intervalArr.forEach(interval => {
-        var elemToAppend = document.createElement('interval');
-        elemToAppend.innerText = prettifyInterval(interval);
-        Results.appendChild(elemToAppend);
-    });
-    Results.appendChild(br());
+    intervalArr.forEach(interval => outputResult('interval', interval));
+    outputResult(null);
     debug("Interval Sum   [" + safeSumList(intervalArr) + "]");
     debug("Interval Count [" + intervalArr.length       + "]");
-    debug("=============");
+    debug("=== Naming Notes ===");
+    
     if(ControlPanel_SemiSemi.checked) {
         warn("Note-naming when allowing consequitve semitones is tricky, so this might be off");
     }
     notes = intervalsToNotes(intervalArr, ControlPanel_RootNote.value);
-    notes.forEach(note => {
-        var elemToAppend = document.createElement('note');
-        elemToAppend.innerText = note;
-        Results.appendChild(elemToAppend);
-    });
+    notes.forEach(note => outputResult('note', note));
+    outputResult(null);
 
-    debug("=============");
+    debug("=== Naming Scale ===");
     scaleName = nameScale(ControlPanel_RootNote.value, intervalArr);
-    print("Scale Name [" + scaleName                + "]");
+    outputResult('name', scaleName);
 
     // debug("=============");
     // playNotes(notes);
 
     debug("=== FINISH ===");
-    print("");
 }
 
 
