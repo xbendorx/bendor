@@ -57,18 +57,15 @@
             line-height: 2;
             color: black;
         }
-        .button {
+        .full_button {
             font-size: 20px;
             padding: 10px;
-            font-family: consolas;
-            margin-left: 5px;
-        }
-        #ControlPanel_Generate {
-            width: 254px;
+            font-family: consolas;            
+            margin-right: 5px;
+            width: 100%;
         }
         .dropdown {
             font-size: 20px;
-            margin: 5px;
             height: 38;
             width: 60px;
             margin-right: 15px;
@@ -87,16 +84,15 @@
             padding: 10px;
         }
         .checkbox {
-            margin: 5px;
             width: 35px;
             height: 35px;
             font-size: 30px;
             vertical-align: middle;
-            margin-right: 13px;
+            margin:0px;
+            margin-right: 15px;
         }
         .textinput {
             font-size: 20px;
-            margin-left: 5px;
             padding: 5px;
         }
         .right_aligned {
@@ -107,15 +103,23 @@
             background-color: #C3C3C3;
             border-style: none;
         }
+        .radio {
+            width: 19px;
+            height: 19px;
+            margin: 10px;
+        }
+        .range {
+            width: 75%;
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
 <br>
 <div id="ControlPanel">
-    <table class="table">
+    <table class="table" id="ControlPanel_Panel_Generation">
         <tr>
             <td class="table_cell"><input class="checkbox" type="checkbox" id="ControlPanel_SemiSemi">Allow subsequent semitones</input>
-            <td class="table_cell"><input class="checkbox" type="checkbox" id="ControlPanel_Debug">Debug Log</input><br>
         </tr>
         <tr>
             <td class="table_cell"><select class="dropdown" id="ControlPanel_RootNote">
@@ -132,14 +136,33 @@
                 <option value="A#">A#</option>
                 <option value="B" >B </option>
             </select>Root Note<br>
-            <td class="table_cell"><button class="button" id="ControlPanel_Generate" onclick="generate()">Generate Scale</button>
         </tr>
         <tr>
             <td class="table_cell">
                 <input class="textinput" type="text" id="ControlPanel_UserIntervals"> Manual Intervals? (CSV) </input>
-            <td class="table_cell right_aligned" >
-                <input type="range" id="ControlPanel_SpeedFactor" min=0 max=0.9 step=0.1 value=0.5>Speed</input>
-                <button class="button" id="ControlPanel_Play" onclick="play()" disabled>Play</button>
+
+        </tr>
+        <tr>
+            <td class="table_cell"><button class="full_button" id="ControlPanel_Generate" onclick="generate()">Generate Scale</button>
+        </tr>
+        <tr>
+            <td class="table_cell"><input class="checkbox" type="checkbox" id="ControlPanel_Debug">Debug Log</input>
+        </tr>
+    </table>
+    <table class="table" id="ControlPanel_Panel_PlaybackDirection">
+        <tr><td>
+            <input class="radio" type="radio" name="ControlPanel_Playback_Direction" value="UP" checked>↗  Up</input><br>
+            <input class="radio" type="radio" name="ControlPanel_Playback_Direction" value="DOWN"      >↘  Down</input><br>
+            <input class="radio" type="radio" name="ControlPanel_Playback_Direction" value="UPDOWN"    >↗↘ Up+Down</input>
+        </td></tr>
+        <tr>
+            <td class="table_cell"><input class="range" type="range" id="ControlPanel_SpeedFactor" min=0 max=0.9 step=0.1 value=0.8>Speed</input>
+        </tr>
+        <tr>
+            <td class="table_cell"><button class="full_button" id="ControlPanel_Play" onclick="play()" disabled>Play</button>
+        </tr>
+        <tr>
+            <td class="table_cell"><button class="full_button" id="ControlPanel_PersistIntervals" onclick="persistIntervals()" disabled>&larr; Persist Intervals</button>
         </tr>
     </table>
 </div>
@@ -186,6 +209,17 @@ function warn(msg) {
 
 function arrToString(arr) {
     return arr.toLocaleString().replaceAll(",",", ");
+}
+
+function getRadioValue(groupName) {
+    var radioElems = document.getElementsByName(groupName);
+    for (var i = 0, length = radioElems.length; i < length; ++i) {
+        var radioElem = radioElems[i];
+        if(radioElem.checked) {
+            return radioElem.value;
+        }
+    }
+    return "NO_RADIO_CHECKED";
 }
 
 function getRandomInt(min, max) {
@@ -384,9 +418,16 @@ function createNote(noteName, noteValue) {
     return toReturn;
 }
 
+function persistIntervals() {
+    var allNoteElems = document.getElementsByTagName('interval');
+    var intervalStr = Array.from(allNoteElems).map(e => e.innerText).join(",").replaceAll("1½","1.5").replaceAll("½","0.5");
+    ControlPanel_UserIntervals.value = intervalStr;
+}
+
 function generate() {
     clearOutput();
     ControlPanel_Play.disabled = false;
+    ControlPanel_PersistIntervals.disabled = false;
     debug("=== START ===");
 
     debug("=== Handling Intervals ===");
@@ -412,22 +453,40 @@ function generate() {
 }
 
 function flashElement(elem, length) {
-    
+
 }
 
 function play() {
+    // debugger;
+    var playbackDirection = getRadioValue('ControlPanel_Playback_Direction');
+
     var allNoteElems = document.getElementsByTagName('note');
     var allNotes = Array.from(allNoteElems).map(elem => elem.noteValue);
+    var playedNotesCount = 0;
 
-    var synth = new Tone.Synth().toDestination();
     var now = Tone.now()
-    for(var i = 0; i< allNotes.length; ++i) {
-        var noteElem = allNoteElems[i];
-        var note = allNotes[i];
-        debug("Playing ["+note+"]");
-        var delay = (1-ControlPanel_SpeedFactor.value);
-        synth.triggerAttackRelease(note, "8n", now + (delay * i));
-        flashElement(noteElem, 200);
+    var synth = new Tone.Synth().toDestination();    
+    if(playbackDirection == "UP" || playbackDirection == "UPDOWN") {        
+        for(var i = 0; i < allNotes.length; ++i) {            
+            var noteElem = allNoteElems[i];
+            var note = allNotes[i];
+            debug("Playing ["+note+"]");
+            var delay = (1-ControlPanel_SpeedFactor.value);
+            synth.triggerAttackRelease(note, "8n", now + (delay * playedNotesCount));
+            flashElement(noteElem, 200);
+            ++playedNotesCount;
+        }        
+    }    
+    if(playbackDirection == "DOWN" || playbackDirection == "UPDOWN") {
+        for(var i = allNotes.length - 1; i >= 0; --i) {
+            var noteElem = allNoteElems[i];
+            var note = allNotes[i];
+            debug("Playing ["+note+"]");
+            var delay = (1-ControlPanel_SpeedFactor.value);
+            synth.triggerAttackRelease(note, "8n", now + (delay * playedNotesCount));
+            flashElement(noteElem, 200);
+            ++playedNotesCount;
+        }       
     }
 }
 
@@ -437,7 +496,4 @@ function play() {
 
 
 <!-- FEATURE IDEAS -->
-<!-- IRAD: Play scale up and down // or just down? radio -->
-<!-- OMRI: Button to store current scale int manual for easy key changes -->
 <!-- OMRI: "I feel lucky" button that shuffles a root, and generates -->
-<!-- OMRI: Separate controls for generation and playback. Two tables -->
