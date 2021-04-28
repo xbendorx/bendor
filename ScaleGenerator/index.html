@@ -247,7 +247,7 @@ function generateScaleIntervals(allowConsecutiveSemitones) {
             }
             default : {
                 if(lastInterval == 0.5 && !allowConsecutiveSemitones) {
-                    debug("Last interval was a semitone and no consequitves are allowed - enforcing");
+                    debug("Last interval was a semitone and no consecutive are allowed - enforcing");
                     intervalToPush = getIntervalBySemitonalWidth(2,3);
                 } else {
                     intervalToPush = getIntervalBySemitonalWidth(1,3);
@@ -398,7 +398,7 @@ function generate() {
     debug("=== Naming Notes ===");
 
     if(ControlPanel_SemiSemi.checked) {
-        warn("Note-naming when allowing consequitve semitones can be tricky, so this might be off");
+        warn("Note-naming when allowing consecutive semitones can be tricky, so this might be off");
     }
     var notes = intervalsToNotes(intervalArr, ControlPanel_RootNote.value);
     notes.forEach(note => outputResult(createNote(note.slice(0, note.length - 1), note)));
@@ -432,3 +432,12 @@ function play() {
 }
 
 </script>
+
+
+
+
+<!-- FEATURE IDEAS -->
+<!-- IRAD: Play scale up and down // or just down? radio -->
+<!-- OMRI: Button to store current scale int manual for easy key changes -->
+<!-- OMRI: "I feel lucky" button that shuffles a root, and generates -->
+<!-- OMRI: Separate controls for generation and playback. Two tables -->
