@@ -112,6 +112,12 @@
             width: 75%;
             margin-right: 10px;
         }
+        #ControlPanel_Trash {
+            width: 40px;
+            height: 40px;
+            font-size: 30px;
+            line-height: 1.0;
+        }
     </style>
 </head>
 <body>
@@ -119,10 +125,10 @@
 <div id="ControlPanel">
     <table class="table" id="ControlPanel_Panel_Generation">
         <tr>
-            <td class="table_cell"><input class="checkbox" type="checkbox" id="ControlPanel_SemiSemi">Allow subsequent semitones</input>
+            <td class="table_cell" colspan=2><input class="checkbox" type="checkbox" id="ControlPanel_SemiSemi">Allow subsequent semitones</input>
         </tr>
         <tr>
-            <td class="table_cell"><select class="dropdown" id="ControlPanel_RootNote">
+            <td class="table_cell" colspan=2><select class="dropdown" id="ControlPanel_RootNote">
                 <option value="C" >C </option>
                 <option value="C#">C#</option>
                 <option value="D" >D </option>
@@ -139,14 +145,16 @@
         </tr>
         <tr>
             <td class="table_cell">
-                <input class="textinput" type="text" id="ControlPanel_UserIntervals"> Manual Intervals? (CSV) </input>
+                <button id="ControlPanel_Trash" onclick="ControlPanel_UserIntervals.value=''">🗑</button>
+            <td class="table_cell">
+                <input class="textinput" type="text" id="ControlPanel_UserIntervals"> Manual Intervals? (CSV)</input>
 
         </tr>
         <tr>
-            <td class="table_cell"><button class="full_button" id="ControlPanel_Generate" onclick="generate()">Generate Scale</button>
+            <td class="table_cell" colspan=2><button class="full_button" id="ControlPanel_Generate" onclick="generate()">Generate Scale</button>
         </tr>
         <tr>
-            <td class="table_cell"><input class="checkbox" type="checkbox" id="ControlPanel_Debug">Debug Log</input>
+            <td class="table_cell" colspan=2><input class="checkbox" type="checkbox" id="ControlPanel_Debug">Debug Log</input>
         </tr>
     </table>
     <table class="table" id="ControlPanel_Panel_PlaybackDirection">
