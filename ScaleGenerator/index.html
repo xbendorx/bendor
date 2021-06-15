@@ -116,11 +116,16 @@
             width: 40px;
             height: 40px;
             font-size: 30px;
-            line-height: 1.0;
+            /*line-height: 1.0;*/
+        }
+        #tag {
+            font-size: 7px;
+            text-align: right;
         }
     </style>
 </head>
 <body>
+    <div id="tag">Inspired by <a href="https://newjazz.dk/Compendiums/scales_of_harmonies.pdf">NewJazz.dk</a></div>
 <br>
 <div id="ControlPanel">
     <table class="table" id="ControlPanel_Panel_Generation">
@@ -145,7 +150,7 @@
         </tr>
         <tr>
             <td class="table_cell">
-                <button id="ControlPanel_Trash" onclick="ControlPanel_UserIntervals.value=''">🗑</button>
+                <button id="ControlPanel_Trash" onclick="ControlPanel_UserIntervals.value=''">X</button>
             <td class="table_cell">
                 <input class="textinput" type="text" id="ControlPanel_UserIntervals"> Manual Intervals? (CSV)</input>
 
@@ -505,3 +510,9 @@ function play() {
 
 <!-- FEATURE IDEAS -->
 <!-- OMRI: "I feel lucky" button that shuffles a root, and generates -->
+<!-- OMRI: A toggle to include/exclude 1.5 neighbors -->
+<!-- OMRI: A toggle to include/exclude 1.5 and 1 neighbors -->
+
+<!-- BUGS -->
+<!-- OMRI: 0.5s can be consecutive when the first and last interval. See next bug: -->
+<!-- OMRI: 0.5,1,0.5,1,0.5,1,1,0.5 in C shows wrong note naming -->
